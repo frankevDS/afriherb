@@ -171,10 +171,11 @@
   .interaction-warn { background: #fff3e0; border-left: 4px solid #e67e22; border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: #7a3e00; margin-top: 6px; }
   footer { background: var(--green-deep); color: rgba(255,255,255,0.55); text-align: center; font-size: 12px; padding: 20px; }
   .admin-method {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 18px; border-radius: 10px;
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 14px 18px; border-radius: 10px;
     font-size: 15px; font-weight: 700;
     margin-bottom: 14px; border: 2px solid;
+    width: 100%;
   }
   .admin-drink { background: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
   .admin-swallow { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
@@ -562,7 +563,7 @@ RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamb
       ],
       "preparation":["Step 1 detail","Step 2 detail","Step 3 detail"],
       "dosage":{
-        "administrationMethod":"CRITICAL: exactly one of these — DRINK (for teas, juices, liquid remedies taken by mouth), SWALLOW (for capsules, pills, seeds taken whole), APPLY TO SKIN (for creams, pastes, oils rubbed on body), CHEW (for roots, seeds chewed in mouth), INHALE/STEAM (for steam inhalation). Be very specific.",
+        "administrationMethod":"YOU MUST PICK EXACTLY ONE: 'DRINK' (liquid remedy taken by mouth e.g. herbal tea, juice, decoction), 'SWALLOW' (solid taken by mouth e.g. seeds, capsules, tablets), 'APPLY TO SKIN' (rubbed or massaged onto body externally e.g. oil, paste, cream — NOT taken by mouth), 'CHEW' (chewed in mouth then swallowed or spat e.g. bitter kola, ginger root), 'INHALE/STEAM' (breathed in as steam or vapour). THIS FIELD IS MANDATORY — never leave it empty or vague.",
         "amount":"e.g. 1 cup (250ml)",
         "frequency":"e.g. twice daily",
         "timing":"e.g. morning on empty stomach and evening after food",
@@ -717,15 +718,37 @@ function renderResults(data) {
       <ul class="steps-list">${prepSteps}</ul>
       <div class="dosage-box">
         <h4>💊 Dosage &amp; Schedule</h4>
-        ${dos.administrationMethod ? (() => {
-          const m = (dos.administrationMethod||'').toLowerCase();
-          let cls = 'admin-drink', icon = '🥤', label = dos.administrationMethod;
-          if(m.includes('swallow')||m.includes('eat')||m.includes('chew')) { cls='admin-swallow'; icon='💊'; }
-          else if(m.includes('apply')||m.includes('rub')||m.includes('skin')||m.includes('topical')) { cls='admin-apply'; icon='🖐️'; }
-          else if(m.includes('inhale')||m.includes('steam')||m.includes('breathe')) { cls='admin-inhale'; icon='💨'; }
-          else { cls='admin-drink'; icon='🥤'; }
-          return `<div class="admin-method ${cls}">${icon} HOW TO USE: ${label.toUpperCase()}</div>`;
-        })() : ''}
+        ${(() => {
+          const m = (dos.administrationMethod||'NOT SPECIFIED').toLowerCase();
+          let cls, icon, label, instruction;
+          if(m.includes('apply')||m.includes('rub')||m.includes('skin')||m.includes('topical')||m.includes('external')) {
+            cls='admin-apply'; icon='🖐️';
+            label='APPLY TO SKIN — Do NOT Drink';
+            instruction='Rub or massage this remedy directly onto the affected area of the body. This is for external use only — do not swallow or drink it.';
+          } else if(m.includes('swallow')) {
+            cls='admin-swallow'; icon='💊';
+            label='SWALLOW — Take By Mouth';
+            instruction='Take this remedy by mouth and swallow it whole. Do not crush or chew unless instructed.';
+          } else if(m.includes('chew')) {
+            cls='admin-swallow'; icon='🌰';
+            label='CHEW — Chew In Mouth';
+            instruction='Chew this remedy in your mouth. You may swallow or spit depending on the herb instructions above.';
+          } else if(m.includes('inhale')||m.includes('steam')) {
+            cls='admin-inhale'; icon='💨';
+            label='INHALE/STEAM — Breathe In';
+            instruction='Do not drink this remedy. Breathe in the steam or vapour from the prepared mixture as directed.';
+          } else {
+            cls='admin-drink'; icon='🥤';
+            label='DRINK — Take By Mouth';
+            instruction='Drink this remedy like a tea or juice. Take it orally as directed in the dosage schedule below.';
+          }
+          return `<div class="admin-method ${cls}">
+            <div style="width:100%;">
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px;">${icon} HOW TO USE THIS REMEDY: ${label}</div>
+              <div style="font-size:13px;font-weight:400;opacity:0.9;line-height:1.5;">${instruction}</div>
+            </div>
+          </div>`;
+        })()}
         <div class="dosage-grid">
           <div class="dosage-item"><label>Amount per dose</label><span>${dos.amount||'—'}</span></div>
           <div class="dosage-item"><label>Frequency</label><span>${dos.frequency||'—'}</span></div>
