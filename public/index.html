@@ -200,7 +200,7 @@
         <span class="badge">50+ Conditions</span>
         <span class="badge">Verified Herbs</span>
         <span class="badge">Powered by Groq AI</span>
-        <button id="install-btn" onclick="installApp()" style="display:none;background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
+        <button id="install-btn" onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
       </div>
     </div>
   </div>
@@ -333,6 +333,8 @@
           <option value="en">English</option>
           <option value="pidgin">Pidgin English 🇳🇬</option>
           <option value="twi">Twi / Akan 🇬🇭</option>
+          <option value="yoruba">Yoruba 🇳🇬</option>
+          <option value="hausa">Hausa 🇳🇬</option>
         </select>
       </div>
 
@@ -523,26 +525,28 @@ async function submitForm() {
   },2500);
 
   const langNote = {
-    en:'Respond entirely in clear Standard English.',
-    pidgin:'Respond in warm, natural Nigerian Pidgin English throughout.',
-    twi:'Respond in English but include Twi/Akan names for all herbs and conditions.'
+    en:'Respond entirely in clear Standard English. All field values in the JSON (descriptions, preparation steps, dosage instructions, etc.) must be written in English.',
+    pidgin:'Respond ENTIRELY in warm, natural Nigerian Pidgin English. Every single field in the JSON output — descriptions, preparation steps, dosage instructions, stop conditions, everything — must be written in Pidgin, not English. Example Pidgin style: "Boil the ginger well well for ten minutes, then drink am two times every day."',
+    twi:'Respond ENTIRELY in Twi (Akan), the language spoken in Ghana. Every single field in the JSON output — patientSummary, diagnosis descriptions, preparation steps, dosage amount/frequency/timing/duration, stopConditions, herbVsConventional text, hospitalTriggers — must be written in Twi language, not English. Keep herb names and any untranslatable medical terms in their original form but write all sentences and instructions in Twi. Example Twi style: "Fa ginger no noa wɔ nsuo mu sima du, na nom no mprenu da biara."',
+    yoruba:'Respond ENTIRELY in Yoruba, the language spoken widely in Nigeria. Every single field in the JSON output — patientSummary, diagnosis descriptions, preparation steps, dosage amount/frequency/timing/duration, stopConditions, herbVsConventional text, hospitalTriggers — must be written in Yoruba language, not English. Keep herb names in their original form but write all sentences and instructions in Yoruba. Example Yoruba style: "Sè jinjá náà nínú omi fún ìṣẹ́jú mẹ́wàá, kí o sì mu un lẹ́ẹ̀méjì lójoojúmọ́."',
+    hausa:'Respond ENTIRELY in Hausa, the language spoken widely in Northern Nigeria. Every single field in the JSON output — patientSummary, diagnosis descriptions, preparation steps, dosage amount/frequency/timing/duration, stopConditions, herbVsConventional text, hospitalTriggers — must be written in Hausa language, not English. Keep herb names in their original form but write all sentences and instructions in Hausa. Example Hausa style: "A dafa citta a cikin ruwa na minti goma, sannan a sha sau biyu kowace rana."'
   }[lang];
 
-  const langLabel = {en:'English',pidgin:'Pidgin English 🇳🇬',twi:'Twi / Akan 🇬🇭'}[lang];
+  const langLabel = {en:'English',pidgin:'Pidgin English 🇳🇬',twi:'Twi / Akan 🇬🇭',yoruba:'Yoruba 🇳🇬',hausa:'Hausa 🇳🇬'}[lang];
 
   const systemPrompt = `You are AfriHerb, an expert AI panel of doctors, herbalists, physicians, and traditional medicine practitioners from Ghana and Nigeria. You have deep, verified knowledge of West African medicinal plants including: Moringa (Zogale/Drumstick tree), Bitter Leaf (Ewuro/Onugbu/Abeduru), Neem (Dongoyaro/Nimtree), Scent Leaf / African Basil (Efirin/Nchuanwu/Akoko besa), Pawpaw/Papaya leaves and seeds, Soursop / Graviole leaves (Eko oyibo), Aloe Vera, Turmeric (Ata-ile pupa/Kooko), Ginger (Jinja/Atale), Garlic (Ayu/Gyeene), Lemon, Lime, Black Seed / Nigella sativa (Habbatus sauda), Zobo / Hibiscus / Roselle (Isapa/Sobolo), Tiger Nut (Aya/Atadwe), Clove (Kanafuru/Pepre), Cinnamon (Oloorun), Fenugreek (Hulba/Ewé ewedu), Flaxseed, Alligator pepper (Atare/Efom wisa), Negro pepper (Eru/Uda/Hwentia), Uziza leaf (Piper guineense), Utazi leaf (Gongronema latifolium), Prekese / Aidan fruit (Tetrapleura tetraptera), Kontomire / Cocoyam leaves, Dawadawa / African Locust Bean (Iru/Dawadawa), Aju Mbaise (postpartum herb), Bitter Kola / Garcinia kola (Obi Akika/Bese kooko), Kola nut, Mahogany seeds, Guava leaves (Goba/Guava), Mango leaves and bark, African Walnut (Asala/Oye), Shea butter tree bark and leaves, Senna leaves (Ewe asunwun), Plantain unripe (ogede agbagba), Coconut oil and water, Lemongrass (Kooko sa/Ahwerewa), African Pepper (Cameroon pepper), Cayenne pepper, Dandelion, Baobab (Kuka/Ose), Tamarind (Tsamiya/Otamarind), and many more verified plants.
 
 You cover 50+ conditions including: Diabetes, High/Low Blood Pressure, Hypertension, Hypotension, Migraine, Liver disease, Kidney problems, Asthma, Malaria, Typhoid, Cataracts, Glaucoma, Obesity, High Cholesterol, Arthritis, Fibroid, Prostate issues, Menstrual disorders, Menopause, Fertility, Anaemia, Ulcer, Constipation, Diarrhoea, Skin conditions, Piles, Palpitations, Insomnia, Anxiety, Depression, Memory issues, Thyroid disorders, UTI, STI, Childhood fever, Worms, Jaundice, Sickle cell, Eczema, Toothache, Back pain, Detox, and more.
 
 CRITICAL RULES:
-1. Always give LOCAL herb names in Nigerian languages (Yoruba, Igbo, Hausa) AND Ghanaian languages (Twi/Ga/Ewe).
-2. Give EXACT measurements (e.g., 10 fresh leaves, 2 tablespoons, 500ml water).
-3. Each solution must have full preparation steps, dosage schedule (when, how much, how often, how many days), and stop conditions.
-4. Compare herbal vs conventional medicine side-by-side.
-5. Flag any drug interactions with the patient's listed medications.
-6. Include child-adjusted doses and pregnancy safety for each solution.
-7. List clear hospital emergency triggers.
-8. ${langNote}
+1. 🚨 LANGUAGE REQUIREMENT (HIGHEST PRIORITY — FOLLOW THIS EXACTLY): ${langNote}
+2. Always give LOCAL herb names in Nigerian languages (Yoruba, Igbo, Hausa) AND Ghanaian languages (Twi/Ga/Ewe) in addition to following Rule 1's language requirement.
+3. Give EXACT measurements (e.g., 10 fresh leaves, 2 tablespoons, 500ml water).
+4. Each solution must have full preparation steps, dosage schedule (when, how much, how often, how many days), and stop conditions.
+5. Compare herbal vs conventional medicine side-by-side.
+6. Flag any drug interactions with the patient's listed medications.
+7. Include child-adjusted doses and pregnancy safety for each solution.
+8. List clear hospital emergency triggers.
 9. Use ONLY verified, evidence-informed herbs. Never invent remedies.
 
 RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamble. Exact structure:
@@ -600,7 +604,9 @@ RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamb
 - Current medications: ${medications||'None'}
 - Allergies: ${allergies||'None known'}
 
-Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal solution protocols. Prioritize herbs easily found in ${selectedCountry}. Language: ${langNote}`;
+Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal solution protocols. Prioritize herbs easily found in ${selectedCountry}.
+
+🚨 FINAL REMINDER — LANGUAGE: ${langNote} Do not respond in English unless English was specifically selected. Every text field in your JSON response must be in the required language.`;
 
   try {
     const response = await fetch('/api/chat', {
@@ -807,48 +813,113 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// PWA Install
-let deferredPrompt;
+// PWA Install — robust cross-browser handling
+let deferredPrompt = null;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+function detectPlatform() {
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
+  if (/android/i.test(ua)) return 'android';
+  return 'desktop';
+}
+
+function showInstallBanner() {
+  if (isStandalone) return; // already installed, never show
+  if (sessionStorage.getItem('afriherb_install_dismissed')) return;
+  if (document.getElementById('install-banner')) return;
+
+  const platform = detectPlatform();
+  let instructionHtml = '';
+  if (platform === 'ios') {
+    instructionHtml = `Tap the <strong>Share button</strong> <span style="font-size:16px;">⬆️</span> below, then scroll down and tap <strong>"Add to Home Screen"</strong>.`;
+  } else if (platform === 'android') {
+    instructionHtml = `Tap <strong>"Install"</strong> below, or use the <strong>⋮ menu</strong> in Chrome → <strong>"Add to Home screen"</strong>.`;
+  } else {
+    instructionHtml = `Click <strong>"Install"</strong> below, or look for the install icon ⊕ in your browser's address bar.`;
+  }
+
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9998;background:#0a3d1f;color:white;border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,0.3);display:flex;align-items:center;gap:12px;font-family:"DM Sans",sans-serif;max-width:480px;margin:0 auto;';
+  banner.innerHTML = `
+    <div style="font-size:28px;flex-shrink:0;">🌿</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:2px;">Install AfriHerb App</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.4;">${instructionHtml}</div>
+    </div>
+    <button onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;">Install</button>
+    <button onclick="dismissInstallBanner()" aria-label="Dismiss" style="background:transparent;color:rgba(255,255,255,0.6);border:none;font-size:18px;cursor:pointer;padding:0 4px;flex-shrink:0;">✕</button>
+  `;
+  document.body.appendChild(banner);
+}
+
+function dismissInstallBanner() {
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.remove();
+  sessionStorage.setItem('afriherb_install_dismissed', '1');
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  const btn = document.getElementById('install-btn');
-  if(btn) btn.style.display = 'inline-block';
+  showInstallBanner();
 });
 
 window.addEventListener('appinstalled', () => {
-  const btn = document.getElementById('install-btn');
-  if(btn) btn.style.display = 'none';
   deferredPrompt = null;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.remove();
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'none';
 });
 
+function showManualInstructions() {
+  const platform = detectPlatform();
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  let body = '';
+  if (platform === 'ios') {
+    body = `<p style="font-weight:700;color:#1a6b3a;margin-bottom:8px;">🍎 iPhone / iPad (Safari):</p>
+      <p style="font-size:14px;color:#444;">1. Tap the <strong>Share button</strong> (square with an arrow ⬆️) at the bottom of Safari<br>2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>3. Tap <strong>"Add"</strong> at the top right</p>
+      <p style="font-size:12.5px;color:#888;margin-top:12px;">⚠️ This must be done in Safari — it will not work in Chrome on iPhone.</p>`;
+  } else if (platform === 'android') {
+    body = `<p style="font-weight:700;color:#1a6b3a;margin-bottom:8px;">🤖 Android (Chrome):</p>
+      <p style="font-size:14px;color:#444;">1. Tap the <strong>3-dot menu (⋮)</strong> at the top right of Chrome<br>2. Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong><br>3. Tap <strong>"Add"</strong> or <strong>"Install"</strong> to confirm</p>`;
+  } else {
+    body = `<p style="font-weight:700;color:#1a6b3a;margin-bottom:8px;">💻 Computer (Chrome / Edge):</p>
+      <p style="font-size:14px;color:#444;">1. Look at the right side of your address bar<br>2. Click the <strong>install icon</strong> (looks like a screen with a down arrow, or ⊕)<br>3. Click <strong>"Install"</strong> in the popup</p>`;
+  }
+
+  msg.innerHTML = `
+    <div style="background:white;border-radius:16px;padding:28px;max-width:380px;width:100%;text-align:center;font-family:'DM Sans',sans-serif;">
+      <div style="font-size:40px;margin-bottom:12px;">📲</div>
+      <h3 style="font-size:18px;color:#0a3d1f;margin-bottom:16px;font-family:'Playfair Display',serif;">Install AfriHerb</h3>
+      <div style="text-align:left;margin-bottom:20px;">${body}</div>
+      <button onclick="this.closest('div').parentElement.remove()" style="background:#1a6b3a;color:white;border:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;">Got it ✓</button>
+    </div>`;
+  document.body.appendChild(msg);
+  msg.addEventListener('click', (e) => { if(e.target === msg) msg.remove(); });
+}
+
 function installApp() {
-  if(deferredPrompt) {
+  if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choice) => {
+    deferredPrompt.userChoice.then(() => {
       deferredPrompt = null;
-      const btn = document.getElementById('install-btn');
-      if(btn) btn.style.display = 'none';
+      const banner = document.getElementById('install-banner');
+      if (banner) banner.remove();
     });
   } else {
-    // Show manual instructions in a nice popup
-    const msg = document.createElement('div');
-    msg.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    msg.innerHTML = `
-      <div style="background:white;border-radius:16px;padding:28px;max-width:360px;width:100%;text-align:center;font-family:DM Sans,sans-serif;">
-        <div style="font-size:40px;margin-bottom:12px;">📲</div>
-        <h3 style="font-size:18px;color:#0a3d1f;margin-bottom:16px;font-family:Playfair Display,serif;">Install AfriHerb</h3>
-        <div style="text-align:left;margin-bottom:20px;">
-          <p style="font-weight:700;color:#1a6b3a;margin-bottom:8px;">🤖 Android (Chrome):</p>
-          <p style="font-size:14px;color:#444;margin-bottom:16px;">Tap the <strong>3-dot menu (⋮)</strong> at the top right → tap <strong>"Add to Home screen"</strong> → tap <strong>"Add"</strong></p>
-          <p style="font-weight:700;color:#1a6b3a;margin-bottom:8px;">🍎 iPhone (Safari):</p>
-          <p style="font-size:14px;color:#444;">Tap the <strong>Share button (□↑)</strong> at the bottom → scroll down → tap <strong>"Add to Home Screen"</strong> → tap <strong>"Add"</strong></p>
-        </div>
-        <button onclick="this.closest('div').parentElement.remove()" style="background:#1a6b3a;color:white;border:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;width:100%;font-family:DM Sans,sans-serif;">Got it ✓</button>
-      </div>`;
-    document.body.appendChild(msg);
-    msg.addEventListener('click', (e) => { if(e.target === msg) msg.remove(); });
+    showManualInstructions();
   }
+}
+
+// Show the install banner automatically after a short delay,
+// even if beforeinstallprompt never fires (covers iOS Safari and other browsers)
+if (!isStandalone) {
+  setTimeout(showInstallBanner, 2500);
 }
 </script>
 </body>
