@@ -423,7 +423,7 @@
 
     <!-- SUPPLEMENT STORE CTA -->
     <div class="card no-print" style="border:none;overflow:hidden;">
-      <a href="https://www.frankev.com/product-category/supplements-health-personal-care/" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+      <a id="supplement-cta-link" href="https://www.frankev.com/product-category/supplements-health-personal-care/" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
         <div style="background:linear-gradient(135deg,#0a3d1f 0%,#1a6b3a 55%,#2d9e5f 100%);padding:28px 26px;position:relative;overflow:hidden;">
           <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,0.06);border-radius:50%;"></div>
           <div style="position:absolute;bottom:-50px;right:40px;width:100px;height:100px;background:rgba(200,134,10,0.12);border-radius:50%;"></div>
@@ -432,10 +432,10 @@
             <div style="flex:1;min-width:200px;">
               <div style="font-size:11.5px;font-weight:700;letter-spacing:0.6px;color:#a5d6a7;text-transform:uppercase;margin-bottom:6px;">Recommended Next Step</div>
               <div style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:white;margin-bottom:6px;line-height:1.3;">Get Quality Supplements for Your Condition</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.5;">Complement your herbal protocol with trusted, quality-checked supplements from Frankev — Ghana &amp; Nigeria's health and personal care store.</div>
+              <div id="supplement-cta-subtext" style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.5;">Complement your herbal protocol with trusted, quality-checked supplements from Frankev — Ghana &amp; Nigeria's health and personal care store.</div>
             </div>
             <div style="flex-shrink:0;background:#c8860a;color:white;padding:11px 20px;border-radius:9px;font-size:13.5px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;">
-              Shop Supplements <span style="font-size:15px;">→</span>
+              <span id="supplement-cta-button-text">Shop Supplements</span> <span style="font-size:15px;">→</span>
             </div>
           </div>
         </div>
@@ -872,6 +872,77 @@ function renderResults(data) {
       <div style="font-size:12px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">🇳🇬 Nigeria Emergency</div>
       <div style="font-size:13px;color:var(--text-mid);">${ec.nigeria||'Nigeria Emergency: 112'}</div>
     </div>`;
+
+  // Update supplement CTA to point at the most relevant product search for this patient's top diagnosis
+  updateSupplementCTA(data);
+}
+
+// ===== SMART SUPPLEMENT MATCHING =====
+// Maps common diagnosis names to the actual keyword(s) used in Frankev's product names/tags.
+// Falls back to a generic search using the diagnosis name itself if no exact match is found,
+// and falls back further to the general supplements category if nothing matches at all.
+const CONDITION_KEYWORD_MAP = [
+  { match: ['diabetes', 'blood sugar', 'high sugar', 'glucose'], keyword: 'diabetes' },
+  { match: ['hypertension', 'high blood pressure'], keyword: 'hypertension' },
+  { match: ['low blood pressure', 'hypotension'], keyword: 'blood pressure' },
+  { match: ['blood pressure'], keyword: 'high blood pressure' },
+  { match: ['menopause'], keyword: 'menopause' },
+  { match: ['menstrual', 'period problem', 'irregular period', 'dysmenorrhea'], keyword: 'menstrual' },
+  { match: ['fibroid'], keyword: 'fibroid' },
+  { match: ['prostate'], keyword: 'prostate' },
+  { match: ['fertility', 'infertility', 'conceive'], keyword: 'fertility' },
+  { match: ['liver'], keyword: 'liver' },
+  { match: ['cholesterol'], keyword: 'cholesterol' },
+  { match: ['weight', 'obesity', 'overweight', 'fat'], keyword: 'weight' },
+  { match: ['immune', 'immunity'], keyword: 'immune' },
+  { match: ['joint', 'arthritis'], keyword: 'joint' },
+  { match: ['detox'], keyword: 'detox' },
+  { match: ['digestive', 'digestion', 'ulcer', 'stomach'], keyword: 'digestive' },
+  { match: ['anaemia', 'anemia'], keyword: 'iron' },
+  { match: ['energy', 'fatigue', 'tired'], keyword: 'energy' },
+  { match: ['skin'], keyword: 'skin' },
+  { match: ['general wellness', 'wellness', 'detox needed'], keyword: 'aloe vera' },
+];
+
+// General-purpose products that are good fallback recommendations regardless of condition,
+// since they support overall wellness — used only when no specific keyword matches.
+const GENERAL_FALLBACK_KEYWORD = 'aloe vera';
+
+function findProductKeyword(diagnosisName) {
+  if (!diagnosisName) return GENERAL_FALLBACK_KEYWORD;
+  const lower = diagnosisName.toLowerCase();
+  for (const entry of CONDITION_KEYWORD_MAP) {
+    if (entry.match.some(m => lower.includes(m))) {
+      return entry.keyword;
+    }
+  }
+  // No exact match — try using a cleaned version of the diagnosis name itself as the search term
+  return diagnosisName.split('/')[0].split('(')[0].trim();
+}
+
+function updateSupplementCTA(data) {
+  const ctaLink = document.getElementById('supplement-cta-link');
+  const ctaSubtext = document.getElementById('supplement-cta-subtext');
+  const ctaButtonText = document.getElementById('supplement-cta-button-text');
+  if (!ctaLink) return;
+
+  const topDiagnosis = (data.diagnoses && data.diagnoses[0]) ? data.diagnoses[0].name : null;
+
+  if (!topDiagnosis) {
+    ctaLink.href = 'https://www.frankev.com/product-category/supplements-health-personal-care/';
+    return;
+  }
+
+  const keyword = findProductKeyword(topDiagnosis);
+  const searchUrl = `https://www.frankev.com/?s=${encodeURIComponent(keyword)}&post_type=product&product_cat=supplements-health-personal-care`;
+
+  ctaLink.href = searchUrl;
+  if (ctaSubtext) {
+    ctaSubtext.textContent = `Based on your result (${topDiagnosis}), see supplements related to "${keyword}" from Frankev — Ghana & Nigeria's health and personal care store.`;
+  }
+  if (ctaButtonText) {
+    ctaButtonText.textContent = `See ${keyword.charAt(0).toUpperCase()+keyword.slice(1)} Products`;
+  }
 }
 
 // ===== CONSULTATION HISTORY (saved locally on this device only) =====
