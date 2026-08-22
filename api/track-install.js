@@ -1,3 +1,8 @@
+// This endpoint records a confirmed app install.
+// It uses CountAPI.xyz — a free, no-signup-required counter service.
+// Each call increments a persistent counter tied to your domain + namespace.
+// No personal data is stored — just a running total number.
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -10,12 +15,14 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'POST') {
+      // Increment the install counter by 1
       const response = await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`);
       const data = await response.json();
       return res.status(200).json({ count: data.value });
     }
 
     if (req.method === 'GET') {
+      // Just read the current count without incrementing
       const response = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`);
       const data = await response.json();
       return res.status(200).json({ count: data.value || 0 });
