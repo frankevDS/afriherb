@@ -181,6 +181,36 @@
   html { scroll-behavior: smooth; }
   .anchor { scroll-margin-top: 24px; }
 
+  /* Herb image cards */
+  .herb-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .herb-card {
+    display: flex;
+    gap: 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    background: white;
+    align-items: flex-start;
+  }
+  .herb-card-img-wrap {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--green-pale);
+    flex-shrink: 0;
+  }
+  .herb-card-info { flex: 1; min-width: 0; }
+  @media(max-width:480px){
+    .herb-cards-grid { grid-template-columns: 1fr; }
+  }
+
   @media print {
     body { background: white; }
     header, .disclaimer, .lang-strip, #install-banner,
@@ -587,20 +617,97 @@ async function submitForm() {
 
   const langLabel = {en:'English',pidgin:'Pidgin English 🇳🇬',twi:'Twi / Akan 🇬🇭',yoruba:'Yoruba 🇳🇬',hausa:'Hausa 🇳🇬'}[lang];
 
-  const systemPrompt = `You are AfriHerb, an expert AI panel of doctors, herbalists, physicians, and traditional medicine practitioners from Ghana and Nigeria. You have deep, verified knowledge of West African medicinal plants including: Moringa (Zogale/Drumstick tree), Bitter Leaf (Ewuro/Onugbu/Abeduru), Neem (Dongoyaro/Nimtree), Scent Leaf / African Basil (Efirin/Nchuanwu/Akoko besa), Pawpaw/Papaya leaves and seeds, Soursop / Graviole leaves (Eko oyibo), Aloe Vera, Turmeric (Ata-ile pupa/Kooko), Ginger (Jinja/Atale), Garlic (Ayu/Gyeene), Lemon, Lime, Black Seed / Nigella sativa (Habbatus sauda), Zobo / Hibiscus / Roselle (Isapa/Sobolo), Tiger Nut (Aya/Atadwe), Clove (Kanafuru/Pepre), Cinnamon (Oloorun), Fenugreek (Hulba/Ewé ewedu), Flaxseed, Alligator pepper (Atare/Efom wisa), Negro pepper (Eru/Uda/Hwentia), Uziza leaf (Piper guineense), Utazi leaf (Gongronema latifolium), Prekese / Aidan fruit (Tetrapleura tetraptera), Kontomire / Cocoyam leaves, Dawadawa / African Locust Bean (Iru/Dawadawa), Aju Mbaise (postpartum herb), Bitter Kola / Garcinia kola (Obi Akika/Bese kooko), Kola nut, Mahogany seeds, Guava leaves (Goba/Guava), Mango leaves and bark, African Walnut (Asala/Oye), Shea butter tree bark and leaves, Senna leaves (Ewe asunwun), Plantain unripe (ogede agbagba), Coconut oil and water, Lemongrass (Kooko sa/Ahwerewa), African Pepper (Cameroon pepper), Cayenne pepper, Dandelion, Baobab (Kuka/Ose), Tamarind (Tsamiya/Otamarind), and many more verified plants.
+  const systemPrompt = `You are AfriHerb, an expert AI panel of doctors, herbalists, physicians, and traditional medicine practitioners from Ghana and Nigeria. You have deep, verified, clinical-grade knowledge of the following 50 verified West African medicinal plants — you must actively draw from ALL of them when making recommendations, not just the most common ones:
+
+LEAVES & PLANTS:
+1. Bitter Leaf / Ewuro / Onugbu / Abeduru (Vernonia amygdalina) — malaria, high blood sugar, stomach upset, liver support
+2. Neem Leaf / Dongoyaro / Nimtree (Azadirachta indica) — malaria, fevers, skin infections, blood purification
+3. Scent Leaf / Efirin / Nchuanwu / Nunum (Ocimum gratissimum) — diarrhea, bloating, coughs, digestive relief
+4. Moringa / Zogale / Drumstick (Moringa oleifera) — general vitality, high blood pressure, nutrition, blood sugar, fertility
+5. Pawpaw Leaf / Ewe Ibepe (Carica papaya) — malaria symptoms, digestive support, dengue, platelet boost
+6. Lemongrass / Ahwerewa / Kooko Sa (Cymbopogon citratus) — fevers, colds, sleep relaxation, blood pressure
+7. Guava Leaf / Goba (Psidium guajava) — diarrhea, blood sugar management, wound healing
+8. Mango Leaf / Ewe Mangoro (Mangifera indica) — fevers, early-stage diabetes, blood pressure
+9. Soursop Leaf / Graviole / Eko Oyibo (Annona muricata) — calming nerves, reducing inflammation, fibroid, diabetes
+10. Avocado Leaf / Ewe Pia (Persea americana) — lower high blood pressure, kidney support
+11. Senna Leaf / Ewe Asunwun / Ringworm Plant (Senna alata) — TOPICAL: ringworm, eczema, fungal skin conditions
+12. Waterleaf / Gbure (Talinum triangulare) — blood tonic, diuretic, anaemia
+13. Coat Buttons / Igbafun (Tridax procumbens) — wound healing, stopping bleeding
+14. Bryophyllum / Miracle Leaf / Odundun (Kalanchoe pinnata) — earaches, coughs, boils, hypertension
+15. Baobab Leaf / Kuka (Adansonia digitata) — internal inflammation, asthma, diabetes
+16. Basil / Sweet Basil / Efirin Wewe (Ocimum basilicum) — headaches, respiratory discomfort
+17. Boiled Bush Tea / Fever Plant (Lantana camara) — cold symptoms, fevers (EXTERNAL STEAM USE ONLY — toxic if ingested)
+
+ROOTS, BARKS, FRUITS, SEEDS:
+18. Ginger / Jinja / Atale (Zingiber officinale) — sore throat, coughs, indigestion, nausea, migraine, blood pressure
+19. Garlic / Ayu / Gyeene (Allium sativum) — blood pressure, antimicrobial, cholesterol, immune boost
+20. Prekese / Aidan Fruit / Prɛkɛsɛ (Tetrapleura tetraptera) — postpartum care, hypertension, inflammation, liver
+21. African Pepper / Negro Pepper / Uda / Hwentia (Xylopia aethiopica) — coughs, menstrual pain, postpartum recovery
+22. Alligator Pepper / Atare / Efom Wisa / Mgbologwu (Aframomum melegueta) — digestive issues, stimulant, fertility
+23. Calabash Nutmeg / Ehu (Monodora myristica) — pain relief, hypertension, digestive health
+24. Ghanaian Quinine / Cryptolepis / Kadze (Cryptolepis sanguinolenta) — powerful anti-malarial, jaundice (DRINK — decoction)
+25. Alstonia Bark / Awun / Dton (Alstonia boonei) — fevers, malaria, chronic toothache
+26. Neocarya Bark (Neocarya macrophylla) — stomach ulcers, diarrhea management
+27. Mahogany Bark / Oganwo (Khaya senegalensis) — fever reduction, wound washing (topical use)
+28. Brimstone Tree Bark / Oruwo (Morinda lucida) — stubborn fevers, malaria, liver
+29. Yellow Root / Oje / Sar Fari (Enantia chlorantha) — malaria, jaundice, liver support
+30. Ogless / Spathodea Leaf (Spathodea campanulata) — fresh wounds, inflammation (TOPICAL)
+31. Castor Oil / Erandi (Ricinus communis) — laxative (DRINK, small dose), joint massage (TOPICAL)
+32. Baobab Fruit Pulp (Adansonia digitata) — diarrhea, high vitamin C, immunity
+33. Desert Date Seed Oil / Aduwa (Balanites aegyptiaca) — skin conditions, muscular aches (TOPICAL)
+34. Gum Arabic / Acacia / Dafara (Acacia senegal) — sore throats, irritated mucous membranes (DRINK/SWALLOW)
+35. Fadogia Bark (Fadogia agrestis) — male tonic, energy, testosterone support (DRINK — decoction)
+36. Griffonia Seed (Griffonia simplicifolia) — relaxation, mood enhancement, sleep, serotonin support
+37. Black Plum Bark / Dinya (Vitex doniana) — dysentery, stomach aches
+38. Pteleopsis Bark (Pteleopsis suberosa) — reproductive system cleansing, internal heat
+39. African Whitewood Bark / Sar Fari / Oje (Enantia chlorantha) — liver support, malaria management
+40. Kigelia Fruit / Sausage Tree (Kigelia africana) — skin conditions, fungal infections (TOPICAL ONLY)
+41. Monkey Cola / Obi Abata / Bese Kooko / Bitter Kola (Garcinia kola) — throat infections, coughs, libido, prostate
+42. African Nutmeg Bark (Monodora tenuifolia) — stomach cramps, toothaches
+43. Tiger Nut / Aya / Atadwe (Cyperus esculentus) — digestion, energy, gut health, fertility
+44. Hibiscus / Zobo / Sobolo / Isapa (Hibiscus sabdariffa) — blood pressure, cholesterol, body cooling, kidney health
+45. Tamarind / Tsamiya / Totoe (Tamarindus indica) — digestion, fever cooling, vitamin C
+46. Locust Bean / Dawadawa / Iru (Parkia biglobosa) — eye health, blood pressure
+47. Shea Butter / Ori / Nku (Vitellaria paradoxa) — TOPICAL: joint pain, sprains, skin inflammation, eczema
+48. Coconut Water / Omi Agbon (Cocos nucifera) — rehydration, UTI soothing, kidney support
+49. Unripe Plantain / Ogede Agbagba (Musa paradisiaca) — blood sugar, ulcer symptoms, digestion
+50. Neem Bark / Dogonyaro Bark (Azadirachta indica) — blood purification, malaria, detox (DRINK — decoction)
+
+ADDITIONAL VERIFIED HERBS YOU MUST ALSO USE:
+- Turmeric / Ata-ile Pupa / Kooko Pupa (Curcuma longa) — inflammation, liver, diabetes, fibroid, joints
+- Black Seed / Habbatus Sauda / Jinchaa (Nigella sativa) — immunity, respiratory, blood pressure, diabetes
+- Clove / Kanafuru / Pepre (Syzygium aromaticum) — toothache, antimicrobial, pain, migraine
+- Cinnamon / Oloorun (Cinnamomum verum) — blood sugar, cholesterol, menstrual pain
+- Aloe Vera (Aloe barbadensis) — skin, digestive, fertility, immune
+- Fenugreek / Hulba (Trigonella foenum-graecum) — diabetes, fertility, breastfeeding, cholesterol
+- Dawadawa / African Locust Bean (Parkia biglobosa) — eye health, blood pressure
+- Aju Mbaise (mixed Nigerian postpartum herb) — fibroid, fertility, postpartum, uterine health
+
+VERY IMPORTANT HERB SAFETY RULES YOU MUST ALWAYS FOLLOW:
+- Lantana camara (Fever Plant/Bush Tea): NEVER recommend for internal drinking — EXTERNAL steam only — toxic if ingested
+- Castor oil for internal use: maximum 1 tablespoon once, only as a laxative — never exceed
+- Senna leaf: short-term use only (max 7 days) — not for pregnant women or children under 6
+- Neem: internal use in small controlled doses only — never give large amounts to children or pregnant women
+- Cryptolepis (Ghanaian Quinine): effective anti-malarial but not for pregnant women — clearly flag this
+- Kigelia fruit: TOPICAL ONLY — never recommend for internal consumption
+- Alstonia bark: bitter decoction — low doses only, flag liver caution
+- Any herb marked TOPICAL above must NEVER be listed with administrationMethod of DRINK or SWALLOW
 
 You cover 50+ conditions including: Diabetes, High/Low Blood Pressure, Hypertension, Hypotension, Migraine, Liver disease, Kidney problems, Asthma, Malaria, Typhoid, Cataracts, Glaucoma, Obesity, High Cholesterol, Arthritis, Fibroid, Prostate issues, Menstrual disorders, Menopause, Fertility, Anaemia, Ulcer, Constipation, Diarrhoea, Skin conditions, Piles, Palpitations, Insomnia, Anxiety, Depression, Memory issues, Thyroid disorders, UTI, STI, Childhood fever, Worms, Jaundice, Sickle cell, Eczema, Toothache, Back pain, Detox, and more.
 
 CRITICAL RULES:
 1. 🚨 LANGUAGE REQUIREMENT (HIGHEST PRIORITY — FOLLOW THIS EXACTLY): ${langNote}
 2. Always give LOCAL herb names in Nigerian languages (Yoruba, Igbo, Hausa) AND Ghanaian languages (Twi/Ga/Ewe) in addition to following Rule 1's language requirement.
-3. Give EXACT measurements (e.g., 10 fresh leaves, 2 tablespoons, 500ml water).
-4. Each solution must have full preparation steps, dosage schedule (when, how much, how often, how many days), and stop conditions.
-5. Compare herbal vs conventional medicine side-by-side.
-6. Flag any drug interactions with the patient's listed medications.
-7. Include child-adjusted doses and pregnancy safety for each solution.
-8. List clear hospital emergency triggers.
-9. Use ONLY verified, evidence-informed herbs. Never invent remedies.
+3. Give EXACT measurements — never be vague. Always specify: exact number of leaves (e.g. "10 fresh bitter leaves"), exact volume of water (e.g. "500ml / 2 cups of water"), exact boiling/steeping time (e.g. "boil on medium heat for exactly 15 minutes"), exact cooling time, and exact straining method.
+4. PREPARATION STEPS must be numbered, detailed, and complete — never skip steps. Each step must be a complete sentence explaining WHAT to do, HOW to do it, and WHY. Minimum 5 preparation steps per solution. Include: how to wash/clean the herb, exact measurement to use, cooking method and time, cooling instructions, straining instructions, and storage instructions.
+5. ADMINISTRATION — for every single ingredient and for the overall solution, you MUST explicitly state: "This remedy is for INTERNAL USE (drink/swallow/chew)" OR "This remedy is for EXTERNAL USE ONLY (rub on skin / apply topically)" OR "This remedy is for STEAM INHALATION ONLY". Never leave this ambiguous — a patient's safety depends on this being crystal clear.
+6. DOSAGE must specify: exact cup/tablespoon/ml amount per dose, exact number of times per day, exact time of day (morning/evening/before or after food), exact number of days to continue, what to do on day 1 vs ongoing days, and a clear titration instruction if starting at a low dose.
+7. Compare herbal vs conventional medicine side-by-side.
+8. Flag any drug interactions with the patient's listed medications.
+9. Include child-adjusted doses and pregnancy safety for each solution.
+10. List clear hospital emergency triggers.
+11. Use ONLY herbs from the verified list above. NEVER recommend herbs not on the list. NEVER invent dosages — only use traditionally verified and evidence-supported amounts.
+12. Draw from ALL 50 herbs in your knowledge base — do not default to only moringa/ginger/garlic. Choose the most specifically appropriate herbs for this patient's exact condition.
 
 RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamble. Exact structure:
 {
@@ -616,7 +723,7 @@ RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamb
       "difficulty":"Easy|Intermediate|Advanced",
       "duration":"e.g. 14 days",
       "ingredients":[
-        {"herb":"English name","nigeriaName":"Yoruba/Igbo/Hausa name","ghanaName":"Twi/Ga name","quantity":"exact amount","notes":"where to find it, what part to use"}
+        {"herb":"English name","nigeriaName":"Yoruba/Igbo/Hausa name","ghanaName":"Twi/Ga name","quantity":"exact amount","notes":"where to find it, what part to use","imageSearch":"Wikipedia-style search term for this plant e.g. 'Vernonia amygdalina leaf' or 'Zingiber officinale root' — use the scientific name for accuracy","use":"INTERNAL (taken by mouth) | EXTERNAL (applied to body) | STEAM (inhaled) — state this clearly for every single ingredient"}
       ],
       "preparation":["Step 1 detail","Step 2 detail","Step 3 detail"],
       "dosage":{
@@ -762,12 +869,40 @@ function renderResults(data) {
     const panel=document.createElement('div');
     panel.className='sol-panel'+(idx===0?' active':'');
 
-    const ingredRows=(sol.ingredients||[]).map(ing=>`
-      <tr>
-        <td><strong>${ing.herb||''}</strong><br><span class="local">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' / ')}</span></td>
-        <td>${ing.quantity||''}</td>
-        <td>${ing.notes||''}</td>
-      </tr>`).join('');
+    const ingredRows=(sol.ingredients||[]).map((ing,ingIdx)=>{
+      const useTag = (ing.use||'').toUpperCase();
+      let useColor='#1a6b3a'; let useBg='#e8f5ee'; let useIcon='💊';
+      if(useTag.includes('EXTERNAL')||useTag.includes('TOPICAL')||useTag.includes('SKIN')){useColor='#e65100';useBg='#fff3e0';useIcon='🖐️';}
+      else if(useTag.includes('STEAM')||useTag.includes('INHALE')){useColor='#4a148c';useBg='#f3e5f5';useIcon='💨';}
+      else if(useTag.includes('CHEW')){useColor='#5d4037';useBg='#efebe9';useIcon='🌰';}
+      else{useColor='#0d47a1';useBg='#e3f2fd';useIcon='🥤';}
+
+      const imgId = 'herb-img-'+ingIdx+'-'+Math.random().toString(36).slice(2,6);
+      const searchTerm = encodeURIComponent((ing.imageSearch||ing.herb||'').trim());
+      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(ing.imageSearch||ing.herb||'')}&prop=pageimages&format=json&pithumbsize=200&origin=*`;
+
+      // We fetch the image asynchronously after the HTML is rendered
+      setTimeout(()=>fetchHerbImage(imgId, wikiUrl, ing.herb), 100);
+
+      return `
+        <div class="herb-card">
+          <div class="herb-card-img-wrap">
+            <img id="${imgId}" src="" alt="${ing.herb||''}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:none;" loading="lazy">
+            <div id="${imgId}-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);border-radius:8px;">
+              <span style="font-size:28px;">🌿</span>
+            </div>
+          </div>
+          <div class="herb-card-info">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+              <strong style="font-size:14.5px;color:var(--green-deep);">${ing.herb||''}</strong>
+              <span style="background:${useBg};color:${useColor};font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;flex-shrink:0;">${useIcon} ${useTag||'INTERNAL'}</span>
+            </div>
+            ${ing.nigeriaName||ing.ghanaName ? `<div style="font-size:12px;font-style:italic;color:var(--text-muted);margin-bottom:5px;">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' · ')}</div>` : ''}
+            <div style="font-size:13px;color:var(--text-mid);margin-bottom:4px;"><strong>Amount:</strong> ${ing.quantity||'—'}</div>
+            <div style="font-size:13px;color:var(--text-muted);">${ing.notes||''}</div>
+          </div>
+        </div>`;
+    }).join('');
 
     const prepSteps=(sol.preparation||[]).map((s,i)=>`
       <li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');
@@ -782,11 +917,8 @@ function renderResults(data) {
         <span class="sol-tag duration">⏱ ${sol.duration||''}</span>
         <span class="sol-tag difficulty">📊 ${sol.difficulty||''}</span>
       </div>
-      <div class="sec-title">🧪 Ingredients</div>
-      <table class="ingr-table">
-        <thead><tr><th>Herb</th><th>Amount</th><th>Notes / Where to Find</th></tr></thead>
-        <tbody>${ingredRows}</tbody>
-      </table>
+      <div class="sec-title">🧪 Ingredients & Herbs</div>
+      <div class="herb-cards-grid">${ingredRows}</div>
       <div class="sec-title">👩‍🍳 Preparation Steps</div>
       <ul class="steps-list">${prepSteps}</ul>
       <div class="dosage-box">
@@ -942,7 +1074,38 @@ function updateSupplementCTA(data) {
   }
 }
 
-// ===== CONSULTATION HISTORY (saved locally on this device only) =====
+// ===== HERB IMAGE FETCHING =====
+// Fetches real plant photos from Wikipedia Commons — free, no API key, high quality.
+// Falls back gracefully if no image is found (shows green leaf placeholder).
+async function fetchHerbImage(imgId, wikiUrl, herbName) {
+  try {
+    const resp = await fetch(wikiUrl);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const pages = data?.query?.pages;
+    if (!pages) return;
+    const page = Object.values(pages)[0];
+    const thumbUrl = page?.thumbnail?.source;
+    if (!thumbUrl) return;
+
+    const imgEl = document.getElementById(imgId);
+    const placeholder = document.getElementById(imgId + '-placeholder');
+    if (!imgEl) return;
+
+    imgEl.onload = () => {
+      imgEl.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+    };
+    imgEl.onerror = () => {
+      // Image failed to load — keep placeholder showing
+    };
+    imgEl.src = thumbUrl;
+  } catch (e) {
+    // Network error or API unavailable — placeholder remains, no user impact
+  }
+}
+
+
 const HISTORY_KEY = 'afriherb_history';
 const MAX_HISTORY = 20;
 
