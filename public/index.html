@@ -263,9 +263,10 @@
       <div class="field" style="margin-bottom:20px;">
         <label>Your Country *</label>
         <div class="country-row">
-          <button class="country-btn" id="btn-gh" onclick="selectCountry('Ghana')"><span class="flag">🇬🇭</span> Ghana</button>
-          <button class="country-btn" id="btn-ng" onclick="selectCountry('Nigeria')"><span class="flag">🇳🇬</span> Nigeria</button>
+          <button type="button" class="country-btn" id="btn-gh" onclick="selectCountry('Ghana')"><span class="flag">🇬🇭</span> Ghana</button>
+          <button type="button" class="country-btn" id="btn-ng" onclick="selectCountry('Nigeria')"><span class="flag">🇳🇬</span> Nigeria</button>
         </div>
+        <input type="hidden" id="country-hidden" value="">
       </div>
 
       <!-- BASIC INFO -->
@@ -544,6 +545,9 @@ function buildConditionsGrid() {
 
 function selectCountry(c) {
   selectedCountry = c;
+  // Also write to a hidden input so the value survives any edge-case JS scope issues
+  const hidden = document.getElementById('country-hidden');
+  if (hidden) hidden.value = c;
   document.getElementById('btn-gh').classList.toggle('active', c==='Ghana');
   document.getElementById('btn-ng').classList.toggle('active', c==='Nigeria');
 }
@@ -567,6 +571,8 @@ function resetForm() {
   document.getElementById('severity-score').value='5';
   document.getElementById('severity-score-val').textContent='5';
   selectedCountry=''; selectedConditions=[];
+  const hidden = document.getElementById('country-hidden');
+  if (hidden) hidden.value = '';
   document.querySelectorAll('.check-item').forEach(d=>{d.classList.remove('selected');d.querySelector('input').checked=false;});
   document.getElementById('btn-gh').classList.remove('active');
   document.getElementById('btn-ng').classList.remove('active');
@@ -580,9 +586,27 @@ async function submitForm() {
   const gender=document.getElementById('gender').value;
   const complaint=document.getElementById('complaint').value.trim();
   const duration=document.getElementById('duration').value;
+
+  // Read country from JS variable first, then fall back to hidden input DOM value
+  // This protects against any edge case where the JS variable was lost
+  const countryFromDOM = document.getElementById('country-hidden')?.value || '';
+  if (!selectedCountry && countryFromDOM) selectedCountry = countryFromDOM;
+
+  // Also read country from which button has the 'active' class — ultimate fallback
+  if (!selectedCountry) {
+    if (document.getElementById('btn-gh')?.classList.contains('active')) selectedCountry = 'Ghana';
+    else if (document.getElementById('btn-ng')?.classList.contains('active')) selectedCountry = 'Nigeria';
+  }
+
   if(!selectedCountry||!age||!gender||!complaint||!duration){
+    let missing = [];
+    if (!selectedCountry) missing.push('Country (click Ghana or Nigeria)');
+    if (!age) missing.push('Age');
+    if (!gender) missing.push('Gender');
+    if (!complaint) missing.push('Main Complaint');
+    if (!duration) missing.push('Duration');
     errorBox.style.display='block';
-    errorBox.textContent='Please fill in: Country, Age, Gender, Main Complaint, and Duration.';
+    errorBox.textContent='Please fill in: ' + missing.join(', ') + '.';
     errorBox.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
