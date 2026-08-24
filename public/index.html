@@ -708,7 +708,17 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
       body: JSON.stringify({systemPrompt, userMessage})
     });
     const data = await response.json();
-    if(!response.ok) throw new Error(data.error||'API error');
+    if(!response.ok) {
+      const errMsg = data.error || data.technical || 'API error';
+      // Show friendly message for busy/rate-limit errors
+      if(response.status === 503) {
+        throw new Error('The AI service is temporarily busy. Please wait 1 minute and try again.');
+      } else if(response.status === 401) {
+        throw new Error('API key error. Please contact the site administrator.');
+      } else {
+        throw new Error(errMsg);
+      }
+    }
 
     clearInterval(mInt);
     const raw = data.text || '';
@@ -762,7 +772,17 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
     btn.disabled=false;
     document.getElementById('form-card').style.display='block';
     errorBox.style.display='block';
-    errorBox.textContent='Error: '+err.message+'. Please check your API key in Vercel environment variables and try again.';
+    const msg = err.message || '';
+    // Show friendly message — hide technical model/API details from users
+    if(msg.toLowerCase().includes('busy') || msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('wait')) {
+      errorBox.textContent = '⏳ The AI is temporarily busy. Please wait 1 minute and try again.';
+    } else if(msg.toLowerCase().includes('parse') || msg.toLowerCase().includes('json')) {
+      errorBox.textContent = '⚠️ Could not read AI response. Please try again.';
+    } else if(msg.toLowerCase().includes('key') || msg.toLowerCase().includes('auth')) {
+      errorBox.textContent = '🔑 API configuration issue. Please contact the administrator.';
+    } else {
+      errorBox.textContent = '⚠️ Something went wrong. Please wait a moment and try again.';
+    }
     window.scrollTo({top:0,behavior:'smooth'});
   }
 }
