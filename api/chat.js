@@ -15,22 +15,54 @@ export default async function handler(req, res) {
       });
     }
 
-    // All models below are on Groq (not OpenAI) — your Groq API key is used for all of them.
-    // Models with highest free-tier TPM limits are listed first.
-    // llama-3.1-8b-instant: 20,000 TPM free — best fit for this prompt size
-    // gemma2-9b-it: 15,000 TPM free — Google Gemma on Groq
-    // llama-3.2-11b-text-preview: 7,000 TPM — medium fallback
-    // llama-3.2-3b-preview: 7,000 TPM — light fallback
-    const MODELS = [
-      'llama-3.1-8b-instant',
-      'gemma2-9b-it',
-      'llama-3.2-11b-text-preview',
-      'llama-3.2-3b-preview',
-    ];
+    // Step 1: Fetch live model list from Groq so we always use current active models
+    // This future-proofs the app — no more hard-coding deprecated model names
+    let activeModels = [];
+    try {
+      const modelsResp = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` }
+      });
+      const modelsData = await modelsResp.json();
+      if (modelsData.data && Array.isArray(modelsData.data)) {
+        // Filter to text-generation models only, prefer larger/faster ones
+        const preferred = [
+          'openai/gpt-oss-120b',
+          'qwen/qwen3.6-27b',
+          'openai/gpt-oss-20b',
+          'gemma2-9b-it',
+          'qwen-qwq-32b',
+        ];
+        // Use preferred models that exist in the live list
+        const liveIds = modelsData.data.map(m => m.id);
+        activeModels = preferred.filter(m => liveIds.includes(m));
+        // Add any remaining live models as extra fallback (exclude whisper/vision/embed)
+        const extra = liveIds.filter(id =>
+          !activeModels.includes(id) &&
+          !id.includes('whisper') &&
+          !id.includes('vision') &&
+          !id.includes('embed') &&
+          !id.includes('guard') &&
+          !id.includes('tool-use')
+        );
+        activeModels = [...activeModels, ...extra.slice(0, 3)];
+      }
+    } catch (e) {
+      // If model fetch fails, fall back to known current models
+      activeModels = [
+        'openai/gpt-oss-120b',
+        'qwen/qwen3.6-27b',
+        'openai/gpt-oss-20b',
+        'gemma2-9b-it',
+      ];
+    }
+
+    if (activeModels.length === 0) {
+      activeModels = ['openai/gpt-oss-20b', 'qwen/qwen3.6-27b'];
+    }
 
     let lastError = null;
 
-    for (const model of MODELS) {
+    for (const model of activeModels) {
       try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
@@ -41,7 +73,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             model,
             temperature: 0.4,
-            max_tokens: 3500,
+            max_tokens: 3000,
             response_format: { type: 'json_object' },
             messages: [
               {
@@ -60,11 +92,11 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
           const errMsg = data.error?.message || '';
-          const tryNext =
-            errMsg.toLowerCase().includes('does not exist') ||
+          const isRetryable =
             errMsg.toLowerCase().includes('decommissioned') ||
             errMsg.toLowerCase().includes('deprecated') ||
             errMsg.toLowerCase().includes('no longer supported') ||
+            errMsg.toLowerCase().includes('does not exist') ||
             errMsg.toLowerCase().includes('not found') ||
             errMsg.toLowerCase().includes('too large') ||
             errMsg.toLowerCase().includes('tpm') ||
@@ -74,12 +106,16 @@ export default async function handler(req, res) {
             response.status === 400 ||
             response.status === 429;
 
-          if (tryNext) {
-            lastError = `${model}: ${errMsg}`;
+          if (isRetryable) {
+            lastError = `${model}: ${errMsg.slice(0, 120)}`;
+            // Small delay before trying next model if rate limited
+            if (response.status === 429) {
+              await new Promise(r => setTimeout(r, 1000));
+            }
             continue;
           }
 
-          // Auth error — no point trying other models
+          // Auth error — return immediately
           return res.status(response.status).json({
             error: data.error?.message || 'Groq API error',
             hint: response.status === 401
@@ -97,8 +133,10 @@ export default async function handler(req, res) {
       }
     }
 
+    // All models failed — give a clear user-friendly message
     return res.status(503).json({
-      error: `Service temporarily busy. Please wait 30 seconds and try again. (${lastError})`
+      error: 'The AI service is temporarily busy. Please wait 1 minute and try again.',
+      technical: lastError
     });
 
   } catch (err) {
