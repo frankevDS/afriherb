@@ -10,9 +10,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AfriHerb">
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0a3d1f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AfriHerb">
+<link rel="manifest" href="/manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -180,36 +183,6 @@
   .admin-inhale { background: #f3e5f5; color: #4a148c; border-color: #ce93d8; }
   html { scroll-behavior: smooth; }
   .anchor { scroll-margin-top: 24px; }
-
-  /* Herb image cards */
-  .herb-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .herb-card {
-    display: flex;
-    gap: 12px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    background: white;
-    align-items: flex-start;
-  }
-  .herb-card-img-wrap {
-    width: 70px;
-    height: 70px;
-    min-width: 70px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--green-pale);
-    flex-shrink: 0;
-  }
-  .herb-card-info { flex: 1; min-width: 0; }
-  @media(max-width:480px){
-    .herb-cards-grid { grid-template-columns: 1fr; }
-  }
 
   @media print {
     body { background: white; }
@@ -545,9 +518,8 @@ function buildConditionsGrid() {
 
 function selectCountry(c) {
   selectedCountry = c;
-  // Also write to a hidden input so the value survives any edge-case JS scope issues
   const hidden = document.getElementById('country-hidden');
-  if (hidden) hidden.value = c;
+  if(hidden) hidden.value = c;
   document.getElementById('btn-gh').classList.toggle('active', c==='Ghana');
   document.getElementById('btn-ng').classList.toggle('active', c==='Nigeria');
 }
@@ -572,7 +544,7 @@ function resetForm() {
   document.getElementById('severity-score-val').textContent='5';
   selectedCountry=''; selectedConditions=[];
   const hidden = document.getElementById('country-hidden');
-  if (hidden) hidden.value = '';
+  if(hidden) hidden.value = '';
   document.querySelectorAll('.check-item').forEach(d=>{d.classList.remove('selected');d.querySelector('input').checked=false;});
   document.getElementById('btn-gh').classList.remove('active');
   document.getElementById('btn-ng').classList.remove('active');
@@ -586,27 +558,23 @@ async function submitForm() {
   const gender=document.getElementById('gender').value;
   const complaint=document.getElementById('complaint').value.trim();
   const duration=document.getElementById('duration').value;
-
-  // Read country from JS variable first, then fall back to hidden input DOM value
-  // This protects against any edge case where the JS variable was lost
+  // 3-way country detection: JS var → hidden input → active button class
   const countryFromDOM = document.getElementById('country-hidden')?.value || '';
-  if (!selectedCountry && countryFromDOM) selectedCountry = countryFromDOM;
-
-  // Also read country from which button has the 'active' class — ultimate fallback
-  if (!selectedCountry) {
-    if (document.getElementById('btn-gh')?.classList.contains('active')) selectedCountry = 'Ghana';
-    else if (document.getElementById('btn-ng')?.classList.contains('active')) selectedCountry = 'Nigeria';
+  if(!selectedCountry && countryFromDOM) selectedCountry = countryFromDOM;
+  if(!selectedCountry) {
+    if(document.getElementById('btn-gh')?.classList.contains('active')) selectedCountry='Ghana';
+    else if(document.getElementById('btn-ng')?.classList.contains('active')) selectedCountry='Nigeria';
   }
 
   if(!selectedCountry||!age||!gender||!complaint||!duration){
-    let missing = [];
-    if (!selectedCountry) missing.push('Country (click Ghana or Nigeria)');
-    if (!age) missing.push('Age');
-    if (!gender) missing.push('Gender');
-    if (!complaint) missing.push('Main Complaint');
-    if (!duration) missing.push('Duration');
+    let missing=[];
+    if(!selectedCountry) missing.push('Country (click Ghana or Nigeria)');
+    if(!age) missing.push('Age');
+    if(!gender) missing.push('Gender');
+    if(!complaint) missing.push('Main Complaint');
+    if(!duration) missing.push('Duration');
     errorBox.style.display='block';
-    errorBox.textContent='Please fill in: ' + missing.join(', ') + '.';
+    errorBox.textContent='Please fill in: '+missing.join(', ')+'.';
     errorBox.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
@@ -641,47 +609,82 @@ async function submitForm() {
 
   const langLabel = {en:'English',pidgin:'Pidgin English 🇳🇬',twi:'Twi / Akan 🇬🇭',yoruba:'Yoruba 🇳🇬',hausa:'Hausa 🇳🇬'}[lang];
 
-  const systemPrompt = `You are AfriHerb, a West African herbal medicine expert panel (Ghana & Nigeria). You know all 50 verified medicinal plants including: Bitter Leaf(Vernonia amygdalina), Neem(Azadirachta indica), Scent Leaf(Ocimum gratissimum), Moringa(Moringa oleifera), Pawpaw Leaf(Carica papaya), Lemongrass(Cymbopogon citratus), Guava Leaf(Psidium guajava), Mango Leaf(Mangifera indica), Soursop(Annona muricata), Avocado Leaf(Persea americana), Senna Leaf(Senna alata-TOPICAL ONLY), Waterleaf(Talinum triangulare), Coat Buttons(Tridax procumbens), Bryophyllum(Kalanchoe pinnata), Baobab Leaf(Adansonia digitata), Basil(Ocimum basilicum), Ginger(Zingiber officinale), Garlic(Allium sativum), Prekese(Tetrapleura tetraptera), African Pepper(Xylopia aethiopica), Alligator Pepper(Aframomum melegueta), Calabash Nutmeg(Monodora myristica), Cryptolepis(Cryptolepis sanguinolenta), Alstonia Bark(Alstonia boonei), Mahogany Bark(Khaya senegalensis), Castor Oil(Ricinus communis-TOPICAL/small laxative dose), Baobab Fruit(Adansonia digitata), Gum Arabic(Acacia senegal), Fadogia(Fadogia agrestis), Griffonia(Griffonia simplicifolia), Black Plum(Vitex doniana), Pteleopsis(Pteleopsis suberosa), Kigelia Fruit(Kigelia africana-TOPICAL ONLY), Bitter Kola(Garcinia kola), Tiger Nut(Cyperus esculentus), Hibiscus/Zobo(Hibiscus sabdariffa), Tamarind(Tamarindus indica), Locust Bean/Dawadawa(Parkia biglobosa), Shea Butter(Vitellaria paradoxa-TOPICAL), Coconut Water(Cocos nucifera), Unripe Plantain(Musa paradisiaca), Neem Bark(Azadirachta indica), Turmeric(Curcuma longa), Black Seed(Nigella sativa), Clove(Syzygium aromaticum), Cinnamon(Cinnamomum verum), Aloe Vera(Aloe barbadensis), Fenugreek(Trigonella foenum-graecum), Aju Mbaise(Nigerian postpartum blend).
+  const systemPrompt = `You are AfriHerb, a premium West African herbal medicine expert panel (Ghana & Nigeria). You know these 50 verified medicinal plants and MUST draw from ALL of them — do not default to only moringa/ginger/garlic:
 
-SAFETY: Lantana camara=STEAM ONLY(toxic if drunk). Kigelia=TOPICAL ONLY. Senna=max 7 days, no pregnancy. Cryptolepis=not for pregnant women. Castor oil internal=max 1 tbsp. Neem internal=small doses only.
+1.Bitter Leaf(Vernonia amygdalina/Ewuro/Onugbu/Abeduru) - malaria,blood sugar,liver,stomach
+2.Neem Leaf(Azadirachta indica/Dongoyaro) - malaria,fever,skin infections,blood purification
+3.Scent Leaf(Ocimum gratissimum/Efirin/Nchuanwu/Nunum) - diarrhea,bloating,coughs,digestion
+4.Moringa(Moringa oleifera/Zogale/Drumstick) - BP,nutrition,sugar,fertility,immunity
+5.Pawpaw Leaf(Carica papaya) - malaria,dengue,digestion,platelet boost
+6.Lemongrass(Cymbopogon citratus/Ahwerewa) - fever,cold,sleep,blood pressure
+7.Guava Leaf(Psidium guajava/Goba) - diarrhea,blood sugar,wounds
+8.Mango Leaf(Mangifera indica) - fever,early diabetes,BP
+9.Soursop Leaf(Annona muricata/Graviole) - inflammation,fibroid,diabetes,nerves
+10.Avocado Leaf(Persea americana) - high blood pressure,kidney
+11.Senna Leaf(Senna alata) - EXTERNAL/TOPICAL ONLY: ringworm,eczema,fungal skin
+12.Waterleaf(Talinum triangulare/Gbure) - anemia,blood tonic,diuretic
+13.Coat Buttons(Tridax procumbens) - wound healing,bleeding
+14.Bryophyllum/Miracle Leaf(Kalanchoe pinnata/Odundun) - earache,coughs,boils,hypertension
+15.Baobab Leaf(Adansonia digitata/Kuka) - inflammation,asthma,diabetes
+16.Basil(Ocimum basilicum) - headache,respiratory
+17.Ginger(Zingiber officinale/Jinja/Atale) - nausea,migraine,indigestion,BP,throat
+18.Garlic(Allium sativum/Ayu/Gyeene) - BP,antimicrobial,cholesterol,immunity
+19.Prekese(Tetrapleura tetraptera) - hypertension,postpartum,inflammation,liver
+20.African Pepper(Xylopia aethiopica/Uda/Hwentia) - menstrual pain,cough,postpartum
+21.Alligator Pepper(Aframomum melegueta/Atare) - digestion,fertility,stimulant
+22.Calabash Nutmeg(Monodora myristica/Ehu) - pain,hypertension,digestion
+23.Cryptolepis(Cryptolepis sanguinolenta/Kadze) - malaria,jaundice — NOT FOR PREGNANT WOMEN
+24.Alstonia Bark(Alstonia boonei/Awun) - fever,malaria,toothache
+25.Mahogany Bark(Khaya senegalensis) - fever reduction — TOPICAL/wash wounds only
+26.Castor Oil(Ricinus communis) - TOPICAL: joint massage; INTERNAL: max 1 tbsp laxative dose only
+27.Baobab Fruit Pulp(Adansonia digitata) - diarrhea,vitamin C,immunity
+28.Gum Arabic(Acacia senegal/Dafara) - sore throat,mucous membranes
+29.Fadogia Bark(Fadogia agrestis) - male tonic,energy,testosterone
+30.Griffonia Seed(Griffonia simplicifolia) - sleep,mood,relaxation,serotonin
+31.Black Plum Bark(Vitex doniana/Dinya) - dysentery,stomach ache
+32.Pteleopsis Bark(Pteleopsis suberosa) - reproductive cleansing,internal heat
+33.Kigelia Fruit(Kigelia africana) - TOPICAL ONLY: skin conditions,fungal infections
+34.Bitter Kola(Garcinia kola/Obi Akika/Bese) - throat,prostate,libido,cough,immunity
+35.Tiger Nut(Cyperus esculentus/Aya/Atadwe) - gut health,digestion,energy,fertility
+36.Hibiscus/Zobo(Hibiscus sabdariffa/Sobolo/Isapa) - BP,cholesterol,kidney,body cooling
+37.Tamarind(Tamarindus indica/Tsamiya) - digestion,fever,vitamin C
+38.Locust Bean(Parkia biglobosa/Dawadawa/Iru) - eye health,blood pressure
+39.Shea Butter(Vitellaria paradoxa/Ori/Nku) - TOPICAL: joint pain,sprains,skin,eczema
+40.Coconut Water(Cocos nucifera) - UTI,kidney,rehydration
+41.Unripe Plantain(Musa paradisiaca/Ogede Agbagba) - blood sugar,ulcer,digestion
+42.Neem Bark(Azadirachta indica) - blood purification,malaria,detox — small doses
+43.Turmeric(Curcuma longa/Ata-ile pupa/Kooko) - inflammation,liver,diabetes,fibroid,joints
+44.Black Seed(Nigella sativa/Habbatus sauda) - immunity,respiratory,BP,diabetes
+45.Clove(Syzygium aromaticum/Kanafuru/Pepre) - toothache,antimicrobial,pain,migraine
+46.Cinnamon(Cinnamomum verum/Oloorun) - blood sugar,cholesterol,menstrual pain
+47.Aloe Vera(Aloe barbadensis) - skin,digestion,fertility,immunity
+48.Fenugreek(Trigonella foenum-graecum/Hulba) - diabetes,fertility,cholesterol,breastfeeding
+49.Aju Mbaise(Nigerian postpartum blend) - fibroid,fertility,postpartum,uterine health
+50.Coat Buttons(Tridax procumbens/Igbafun) - wounds,bleeding,anti-inflammatory
 
-${langNote}
+SAFETY RULES — NEVER VIOLATE:
+- Lantana camara=STEAM/EXTERNAL ONLY — toxic if drunk internally
+- Kigelia fruit=TOPICAL ONLY — never for internal use
+- Senna leaf=TOPICAL ONLY for skin conditions, max 7 days if ever internal, never for pregnant women or children under 6
+- Cryptolepis=never for pregnant women
+- Castor oil internal=maximum 1 tablespoon as a single laxative dose only
+- Neem internal=small controlled doses only, never large amounts for children/pregnant women
 
-RULES:
-- EXACTLY 3 solutions, EXACTLY 3 ingredients each, ALL DIFFERENT herbs per solution
-- Each ingredient needs: herb name, nigeriaName, ghanaName, quantity(exact), notes, imageSearch(scientific name for Wikipedia e.g. "Vernonia amygdalina"), use(INTERNAL/EXTERNAL/STEAM), benefit(active compound + mechanism for THIS condition)
-- Preparation: min 5 numbered steps, detailed, include wash/measure/cook/cool/strain/store
-- Dosage: exact ml/cups, times per day, time of day, days, child dose, pregnancy safety
-- administrationMethod: DRINK or APPLY TO SKIN or SWALLOW or CHEW or INHALE/STEAM
-- Each diagnosis needs its own 3 solutions with different herbs
-- Use local Yoruba/Igbo/Hausa/Twi/Ga names always
+LANGUAGE RULE: ${langNote}
 
-RESPOND WITH ONLY VALID JSON:
-{
-  "patientSummary":"2 sentences",
-  "diagnoses":[
-    {
-      "rank":1,"name":"Condition","likelihood":85,"severity":"mild|moderate|serious","description":"2-3 sentences",
-      "solutions":[
-        {
-          "number":1,"title":"title","approach":"Simple Home Remedy","difficulty":"Easy","duration":"7 days",
-          "ingredients":[
-            {"herb":"name","nigeriaName":"local","ghanaName":"local","quantity":"exact","notes":"where to find","imageSearch":"scientific name","use":"INTERNAL","benefit":"active compound + why it works for this condition"}
-          ],
-          "preparation":["Step 1...","Step 2...","Step 3...","Step 4...","Step 5..."],
-          "dosage":{"administrationMethod":"DRINK","amount":"1 cup(250ml)","frequency":"twice daily","timing":"morning empty stomach + evening after food","duration":"14 days","childDose":"half adult dose","pregnancySafe":"yes/no + reason"},
-          "stopConditions":["stop if..."],
-          "herbVsConventional":{"herbalApproach":"how herbs help","conventionalApproach":"drug name + how it works","interactions":"drug interactions or none"}
-        },
-        {"number":2,"approach":"Herbal Blend","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}},
-        {"number":3,"approach":"Full Herbal Protocol","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}}
-      ]
-    },
-    {"rank":2,"name":"Condition 2","likelihood":70,"severity":"mild|moderate|serious","description":"...","solutions":[{"number":1,"approach":"Simple Home Remedy","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}},{"number":2,"approach":"Herbal Blend","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}},{"number":3,"approach":"Full Herbal Protocol","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}}]},
-    {"rank":3,"name":"Condition 3","likelihood":55,"severity":"mild|moderate|serious","description":"...","solutions":[{"number":1,"approach":"Simple Home Remedy","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}},{"number":2,"approach":"Herbal Blend","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}},{"number":3,"approach":"Full Herbal Protocol","ingredients":[],"preparation":[],"dosage":{},"stopConditions":[],"herbVsConventional":{}}]}
-  ],
-  "hospitalTriggers":["trigger 1","trigger 2","trigger 3","trigger 4","trigger 5"],
-  "emergencyContacts":{"ghana":"Ghana Ambulance: 0800-111-222","nigeria":"Nigeria Emergency: 112"}}`;
+OUTPUT RULES:
+- Give EXACTLY 3 solutions per diagnosis
+- Each solution uses EXACTLY 3 different ingredients — NO MORE
+- Each diagnosis MUST have its own 3 unique solutions with DIFFERENT herbs
+- Every ingredient MUST state clearly: use=INTERNAL(drink/swallow) or EXTERNAL(skin only) or STEAM(inhale)
+- Preparation steps MUST be detailed and numbered — minimum 5 steps per solution
+- Include EXACT measurements (e.g. "10 fresh leaves", "500ml water", "boil 15 minutes")
+- Dosage MUST include: exact amount, frequency, timing, duration, child dose, pregnancy safety
+- Hospital triggers MUST list 5 specific warning signs requiring immediate medical attention
+- Emergency contacts MUST include Ghana and Nigeria numbers
+
+RESPOND WITH ONLY THIS JSON STRUCTURE:
+{"patientSummary":"2 sentence patient summary","diagnoses":[{"rank":1,"name":"Condition Name","likelihood":80,"severity":"mild|moderate|serious","description":"2-3 sentences about this condition for this patient","solutions":[{"number":1,"title":"Simple Home Remedy title","approach":"Simple Home Remedy","difficulty":"Easy","duration":"7 days","ingredients":[{"herb":"English name","nigeriaName":"Yoruba/Igbo/Hausa","ghanaName":"Twi/Ga","quantity":"exact amount","notes":"where to find, what part to use","imageSearch":"Vernonia amygdalina","use":"INTERNAL","benefit":"specific active compound and why it helps this condition"},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: Wash each herb under running water for 30 seconds each to remove dust and insects","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"1 cup (250ml)","frequency":"twice daily","timing":"morning on empty stomach and evening after food","duration":"7 consecutive days","childDose":"half adult dose (125ml)","pregnancySafe":"yes — all ingredients safe during pregnancy"},"stopConditions":["Stop if you experience severe stomach pain","Stop if skin rash or itching develops","Stop if symptoms worsen after 3 days"],"herbVsConventional":{"herbalApproach":"How these specific herbs treat this condition — name active compounds","conventionalApproach":"Name the conventional drug(s) used for this condition and how they work","interactions":"Any interactions with medications this patient listed, or state: No known interactions"}},{"number":2,"title":"Herbal Blend title","approach":"Herbal Blend","difficulty":"Intermediate","duration":"14 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"1 cup (250ml)","frequency":"twice daily","timing":"morning and evening after food","duration":"14 consecutive days","childDose":"half adult dose","pregnancySafe":"yes|no|with caution + reason"},"stopConditions":["...","...","..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}},{"number":3,"title":"Full Herbal Protocol title","approach":"Full Herbal Protocol","difficulty":"Advanced","duration":"21 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"1 cup (250ml)","frequency":"three times daily","timing":"morning empty stomach, midday, evening after food","duration":"21 consecutive days","childDose":"half adult dose","pregnancySafe":"yes|no|with caution + reason"},"stopConditions":["...","...","..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}}]},{"rank":2,"name":"...","likelihood":65,"severity":"mild|moderate|serious","description":"...","solutions":[{"number":1,"approach":"Simple Home Remedy","difficulty":"Easy","duration":"7 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}},{"number":2,"approach":"Herbal Blend","difficulty":"Intermediate","duration":"14 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}},{"number":3,"approach":"Full Herbal Protocol","difficulty":"Advanced","duration":"21 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}}]},{"rank":3,"name":"...","likelihood":50,"severity":"mild|moderate|serious","description":"...","solutions":[{"number":1,"approach":"Simple Home Remedy","difficulty":"Easy","duration":"7 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}},{"number":2,"approach":"Herbal Blend","difficulty":"Intermediate","duration":"14 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}},{"number":3,"approach":"Full Herbal Protocol","difficulty":"Advanced","duration":"21 days","ingredients":[{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."},{"herb":"...","nigeriaName":"...","ghanaName":"...","quantity":"...","notes":"...","imageSearch":"...","use":"INTERNAL","benefit":"..."}],"preparation":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ...","Step 5: ..."],"dosage":{"administrationMethod":"DRINK","amount":"...","frequency":"...","timing":"...","duration":"...","childDose":"...","pregnancySafe":"..."},"stopConditions":["..."],"herbVsConventional":{"herbalApproach":"...","conventionalApproach":"...","interactions":"..."}}]}],"hospitalTriggers":["Trigger 1 — specific warning sign","Trigger 2","Trigger 3","Trigger 4","Trigger 5"],"emergencyContacts":{"ghana":"Ghana National Ambulance: 0800-111-222 | Korle Bu Teaching Hospital Accra: 030-266-5401 | KATH Kumasi: 032-202-2301 | Tamale Teaching Hospital: 037-202-2430 | Ghana Police: 191","nigeria":"Nigeria Emergency: 112 | LUTH Lagos: 0703-453-8997 | UCH Ibadan: 0802-316-1496 | ABUTH Zaria: 0803-703-1084 | UNTH Enugu: 0803-491-9971 | Nigeria Police: 199"}};
 
   const userMessage = `Patient Profile:
 - Country: ${selectedCountry}
@@ -708,17 +711,7 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
       body: JSON.stringify({systemPrompt, userMessage})
     });
     const data = await response.json();
-    if(!response.ok) {
-      const errMsg = data.error || data.technical || 'API error';
-      // Show friendly message for busy/rate-limit errors
-      if(response.status === 503) {
-        throw new Error('The AI service is temporarily busy. Please wait 1 minute and try again.');
-      } else if(response.status === 401) {
-        throw new Error('API key error. Please contact the site administrator.');
-      } else {
-        throw new Error(errMsg);
-      }
-    }
+    if(!response.ok) throw new Error(data.error||'API error');
 
     clearInterval(mInt);
     const raw = data.text || '';
@@ -772,81 +765,90 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
     btn.disabled=false;
     document.getElementById('form-card').style.display='block';
     errorBox.style.display='block';
-    const msg = err.message || '';
-    // Show friendly message — hide technical model/API details from users
-    if(msg.toLowerCase().includes('busy') || msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('wait')) {
-      errorBox.textContent = '⏳ The AI is temporarily busy. Please wait 1 minute and try again.';
-    } else if(msg.toLowerCase().includes('parse') || msg.toLowerCase().includes('json')) {
-      errorBox.textContent = '⚠️ Could not read AI response. Please try again.';
-    } else if(msg.toLowerCase().includes('key') || msg.toLowerCase().includes('auth')) {
-      errorBox.textContent = '🔑 API configuration issue. Please contact the administrator.';
-    } else {
-      errorBox.textContent = '⚠️ Something went wrong. Please wait a moment and try again.';
-    }
+    errorBox.textContent='Error: '+err.message+'. Please check your API key in Vercel environment variables and try again.';
     window.scrollTo({top:0,behavior:'smooth'});
   }
 }
 
 function renderResults(data) {
-  // Store data globally so diagnosis tabs can re-render solutions
   window._afriherbData = data;
 
-  // Diagnoses — ALL 3 cards are now clickable tabs
-  const dg=document.getElementById('diag-grid');
-  dg.innerHTML='';
-  (data.diagnoses||[]).forEach((d,i)=>{
-    const sevClass=d.severity==='mild'?'severity-mild':d.severity==='moderate'?'severity-moderate':'severity-serious';
-    const card=document.createElement('div');
-    card.className='diag-card'+(i===0?' top':'');
-    card.style.cursor='pointer';
-    card.title='Click to see herbal solutions for this condition';
-    card.setAttribute('onclick','selectDiagnosis('+i+')');
-    card.innerHTML=`
-      <div class="diag-num" id="diag-label-${i}">${i===0?'★ VIEWING NOW':'#'+(i+1)+' — Click to view'}</div>
+  // ── DIAGNOSES — all 3 clickable ──
+  const dg = document.getElementById('diag-grid');
+  dg.innerHTML = '';
+  (data.diagnoses||[]).forEach((d, i) => {
+    const sevClass = d.severity==='mild' ? 'severity-mild' : d.severity==='moderate' ? 'severity-moderate' : 'severity-serious';
+    const card = document.createElement('div');
+    card.className = 'diag-card' + (i===0 ? ' top' : '');
+    card.style.cursor = 'pointer';
+    card.id = 'diag-card-' + i;
+    card.onclick = () => selectDiagnosis(i);
+    card.innerHTML = `
+      <div class="diag-num" id="diag-label-${i}">${i===0 ? '★ MOST LIKELY' : '#'+(i+1)}</div>
       <div class="diag-name">${d.name||''}</div>
       <div class="diag-pct">${d.likelihood||''}%</div>
       <div class="diag-pct-label">likelihood match</div>
       <div style="margin-top:6px;"><span class="${sevClass}">${(d.severity||'').charAt(0).toUpperCase()+(d.severity||'').slice(1)}</span></div>
       <div class="diag-desc">${d.description||''}</div>
-      <div style="margin-top:8px;font-size:11.5px;font-weight:600;color:var(--green-mid);">${i===0?'🌿 Showing solutions below':'👆 Tap to see herbal solutions'}</div>`;
+      <div style="margin-top:8px;font-size:11.5px;font-weight:600;color:var(--green-mid);">${i===0 ? '🌿 Viewing solutions below ↓' : '👆 Click to see herbal solutions'}</div>`;
     dg.appendChild(card);
   });
 
-  // Render solutions for first diagnosis by default
+  // Render solutions for diagnosis 1 by default
   renderSolutionsForDiagnosis(0, data);
 
-  // Hospital triggers
-  const ht=document.getElementById('hospital-triggers');
-  ht.innerHTML=`<ul style="list-style:none;">${(data.hospitalTriggers||[]).map(t=>`
-    <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;align-items:flex-start;">
-      <span style="color:var(--danger);font-size:18px;line-height:1;flex-shrink:0;">🚨</span><span>${t}</span>
-    </li>`).join('')}</ul>`;
+  // ── HOSPITAL TRIGGERS ──
+  const ht = document.getElementById('hospital-triggers');
+  const triggers = data.hospitalTriggers || [];
+  if(triggers.length > 0) {
+    ht.innerHTML = `<ul style="list-style:none;">${triggers.map(t=>`
+      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="color:var(--danger);font-size:18px;line-height:1;flex-shrink:0;">🚨</span><span>${t}</span>
+      </li>`).join('')}</ul>`;
+  } else {
+    ht.innerHTML = `<ul style="list-style:none;">
+      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
+        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Fever above 39°C (102°F) that does not reduce after 2 days of herbal treatment</span></li>
+      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
+        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Severe chest pain, difficulty breathing, or sudden weakness on one side of the body</span></li>
+      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
+        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Yellowing of the skin or whites of the eyes (jaundice) with dark urine</span></li>
+      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
+        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Loss of consciousness, convulsions, or uncontrolled vomiting for more than 6 hours</span></li>
+      <li style="padding:8px 0;font-size:14px;display:flex;gap:10px;">
+        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Symptoms that significantly worsen within 48 hours of starting any herbal remedy</span></li>
+    </ul>`;
+  }
 
-  // Emergency contacts — hardcoded verified numbers
-  document.getElementById('emergency-contacts').innerHTML=`
-    <div style="grid-column:1/-1;background:#fff3f3;border:1.5px solid #e88080;border-radius:10px;padding:16px 18px;">
-      <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:12px;">🚨 EMERGENCY — Call Immediately if Symptoms Are Severe</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  // ── EMERGENCY CONTACTS — full detailed list ──
+  const ec = data.emergencyContacts || {};
+  const ghanaNumbers = ec.ghana || 'Ghana National Ambulance: 0800-111-222 | Korle Bu Teaching Hospital Accra: 030-266-5401 | KATH Kumasi: 032-202-2301 | Tamale Teaching Hospital: 037-202-2430 | Ghana Police: 191';
+  const nigeriaNumbers = ec.nigeria || 'Nigeria Emergency: 112 | LUTH Lagos: 0703-453-8997 | UCH Ibadan: 0802-316-1496 | ABUTH Zaria: 0803-703-1084 | UNTH Enugu: 0803-491-9971 | Nigeria Police: 199';
+
+  document.getElementById('emergency-contacts').innerHTML = `
+    <div style="grid-column:1/-1;background:#fff3f3;border:1.5px solid #e88080;border-radius:12px;padding:18px 20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.4px;">🚨 Emergency — Call Immediately if Symptoms Are Severe</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div>
-          <div style="font-size:12px;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">🇬🇭 Ghana Emergency Numbers</div>
-          <div style="font-size:13px;color:var(--text-mid);line-height:2.1;">
-            🚑 <strong>National Ambulance:</strong> <a href="tel:0800111222" style="color:var(--danger);font-weight:700;">0800-111-222</a> (Free, 24hrs)<br>
-            🏥 <strong>Korle Bu Teaching Hospital, Accra:</strong> <a href="tel:+233302665401" style="color:var(--green-deep);">030-266-5401</a><br>
-            🏥 <strong>KATH, Kumasi:</strong> <a href="tel:+233322022301" style="color:var(--green-deep);">032-202-2301</a><br>
-            🏥 <strong>Tamale Teaching Hospital:</strong> <a href="tel:+233372022430" style="color:var(--green-deep);">037-202-2430</a><br>
-            🚔 <strong>Ghana Police Emergency:</strong> <a href="tel:191" style="color:var(--danger);font-weight:700;">191</a><br>
-            🔥 <strong>Fire & Rescue:</strong> <a href="tel:192" style="color:var(--danger);">192</a>
+          <div style="font-size:12px;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;">🇬🇭 Ghana Emergency Numbers</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:2.2;">
+            🚑 <strong>National Ambulance:</strong> <a href="tel:0800111222" style="color:var(--danger);font-weight:700;text-decoration:none;">0800-111-222</a> <em style="font-size:11px;">(Free, 24hrs)</em><br>
+            🏥 <strong>Korle Bu Teaching Hospital, Accra:</strong> <a href="tel:+233302665401" style="color:var(--green-deep);text-decoration:none;">030-266-5401</a><br>
+            🏥 <strong>KATH, Kumasi:</strong> <a href="tel:+233322022301" style="color:var(--green-deep);text-decoration:none;">032-202-2301</a><br>
+            🏥 <strong>Tamale Teaching Hospital:</strong> <a href="tel:+233372022430" style="color:var(--green-deep);text-decoration:none;">037-202-2430</a><br>
+            🚔 <strong>Ghana Police Emergency:</strong> <a href="tel:191" style="color:var(--danger);font-weight:700;text-decoration:none;">191</a><br>
+            🔥 <strong>Fire & Rescue Service:</strong> <a href="tel:192" style="color:var(--danger);text-decoration:none;">192</a>
           </div>
         </div>
         <div>
-          <div style="font-size:12px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">🇳🇬 Nigeria Emergency Numbers</div>
-          <div style="font-size:13px;color:var(--text-mid);line-height:2.1;">
-            🚑 <strong>National Emergency:</strong> <a href="tel:112" style="color:var(--danger);font-weight:700;">112</a> (Free, 24hrs)<br>
-            🏥 <strong>LUTH Lagos:</strong> <a href="tel:+2347034538997" style="color:var(--green-deep);">0703-453-8997</a><br>
-            🏥 <strong>UCH Ibadan:</strong> <a href="tel:+2348023161496" style="color:var(--green-deep);">0802-316-1496</a><br>
-            🏥 <strong>ABUTH Zaria:</strong> <a href="tel:+2348037031084" style="color:var(--green-deep);">0803-703-1084</a><br>
-            🏥 <strong>UNTH Enugu:</strong> <a href="tel:+2348034919971" style="color:var(--green-deep);">0803-491-9971</a><br>
-            🚔 <strong>Nigeria Police Emergency:</strong> <a href="tel:199" style="color:var(--danger);font-weight:700;">199</a>
+          <div style="font-size:12px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;">🇳🇬 Nigeria Emergency Numbers</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:2.2;">
+            🚑 <strong>National Emergency:</strong> <a href="tel:112" style="color:var(--danger);font-weight:700;text-decoration:none;">112</a> <em style="font-size:11px;">(Free, 24hrs)</em><br>
+            🏥 <strong>LUTH Lagos:</strong> <a href="tel:+2347034538997" style="color:var(--green-deep);text-decoration:none;">0703-453-8997</a><br>
+            🏥 <strong>UCH Ibadan:</strong> <a href="tel:+2348023161496" style="color:var(--green-deep);text-decoration:none;">0802-316-1496</a><br>
+            🏥 <strong>ABUTH Zaria:</strong> <a href="tel:+2348037031084" style="color:var(--green-deep);text-decoration:none;">0803-703-1084</a><br>
+            🏥 <strong>UNTH Enugu:</strong> <a href="tel:+2348034919971" style="color:var(--green-deep);text-decoration:none;">0803-491-9971</a><br>
+            🚔 <strong>Nigeria Police Emergency:</strong> <a href="tel:199" style="color:var(--danger);font-weight:700;text-decoration:none;">199</a>
           </div>
         </div>
       </div>
@@ -855,132 +857,185 @@ function renderResults(data) {
   updateSupplementCTA(data);
 }
 
+// ── Switch which diagnosis solutions are shown ──
 function selectDiagnosis(diagIdx) {
   const data = window._afriherbData;
-  if (!data) return;
-  // Update all 3 diagnosis card visual states
-  document.querySelectorAll('.diag-card').forEach((card,i)=>{
-    card.classList.toggle('top', i===diagIdx);
-    const lbl = document.getElementById('diag-label-'+i);
-    if(lbl) lbl.textContent = i===diagIdx ? '★ VIEWING NOW' : '#'+(i+1)+' — Click to view';
+  if(!data) return;
+
+  document.querySelectorAll('.diag-card').forEach((card, i) => {
+    card.classList.toggle('top', i === diagIdx);
+    const lbl = document.getElementById('diag-label-' + i);
+    if(lbl) lbl.textContent = i === diagIdx ? '★ MOST LIKELY' : '#'+(i+1);
     const hints = card.querySelectorAll('div');
     const last = hints[hints.length-1];
-    if(last) last.textContent = i===diagIdx ? '🌿 Showing solutions below' : '👆 Tap to see herbal solutions';
+    if(last && last.style && last.style.fontSize === '11.5px') {
+      last.textContent = i === diagIdx ? '🌿 Viewing solutions below ↓' : '👆 Click to see herbal solutions';
+    }
   });
+
   renderSolutionsForDiagnosis(diagIdx, data);
-  setTimeout(()=>{
-    const c = document.getElementById('solutions-container');
-    if(c) c.scrollIntoView({behavior:'smooth',block:'start'});
+
+  setTimeout(() => {
+    const sol = document.getElementById('solutions-container');
+    if(sol) sol.scrollIntoView({behavior:'smooth', block:'start'});
   }, 150);
 }
 
+// ── Render 3 solutions for a given diagnosis ──
 function renderSolutionsForDiagnosis(diagIdx, data) {
   const diag = (data.diagnoses||[])[diagIdx];
-  // Use per-diagnosis solutions if AI provided them, else use main solutions array
-  const allSolutions = (diag && diag.solutions && diag.solutions.length) ? diag.solutions : (data.solutions||[]);
-  // Always cap at exactly 3
-  const solutions = allSolutions.slice(0,3);
+  // Get solutions from per-diagnosis array if available, else from root solutions
+  const allSolutions = (diag && diag.solutions && diag.solutions.length >= 1)
+    ? diag.solutions
+    : (data.solutions || []);
+  const solutions = allSolutions.slice(0, 3);
 
-  const container=document.getElementById('solutions-container');
-  container.innerHTML='';
-  const tabs=document.getElementById('sol-tabs');
-  tabs.innerHTML='';
-  const labels=['🌱 Solution 1 — Simple Home Remedy','🫚 Solution 2 — Herbal Blend','🌿 Solution 3 — Full Herbal Protocol'];
+  const container = document.getElementById('solutions-container');
+  container.innerHTML = '';
+  const tabs = document.getElementById('sol-tabs');
+  tabs.innerHTML = '';
 
-  solutions.forEach((sol,idx)=>{
-    const tab=document.createElement('button');
-    tab.type='button';
-    tab.className='sol-tab'+(idx===0?' active':'');
-    tab.textContent=labels[idx]||('Solution '+(idx+1));
-    tab.onclick=()=>showSolution(idx);
+  const labels = [
+    '🌱 Solution 1 — Simple Home Remedy',
+    '🫚 Solution 2 — Herbal Blend',
+    '🌿 Solution 3 — Full Herbal Protocol'
+  ];
+
+  solutions.forEach((sol, idx) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'sol-tab' + (idx===0 ? ' active' : '');
+    tab.textContent = labels[idx] || ('Solution '+(idx+1));
+    tab.onclick = () => showSolution(idx);
     tabs.appendChild(tab);
 
-    const panel=document.createElement('div');
-    panel.className='sol-panel'+(idx===0?' active':'');
+    const panel = document.createElement('div');
+    panel.className = 'sol-panel' + (idx===0 ? ' active' : '');
 
-    // Cap ingredients at exactly 3
-    const ingredients=(sol.ingredients||[]).slice(0,3);
+    // Cap ingredients at 3 max
+    const ingredients = (sol.ingredients||[]).slice(0, 3);
 
-    const ingredRows=ingredients.map((ing,ingIdx)=>{
-      const useTag=(ing.use||'').toUpperCase();
-      let useColor='#1a6b3a',useBg='#e8f5ee',useIcon='💊';
-      if(useTag.includes('EXTERNAL')||useTag.includes('TOPICAL')||useTag.includes('SKIN')){useColor='#e65100';useBg='#fff3e0';useIcon='🖐️';}
-      else if(useTag.includes('STEAM')||useTag.includes('INHALE')){useColor='#4a148c';useBg='#f3e5f5';useIcon='💨';}
-      else if(useTag.includes('CHEW')){useColor='#5d4037';useBg='#efebe9';useIcon='🌰';}
-      else{useColor='#0d47a1';useBg='#e3f2fd';useIcon='🥤';}
+    const ingredRows = ingredients.map((ing, ingIdx) => {
+      const useTag = (ing.use||'INTERNAL').toUpperCase();
+      let useColor='#1a6b3a', useBg='#e8f5ee', useIcon='💊';
+      if(useTag.includes('EXTERNAL')||useTag.includes('TOPICAL')||useTag.includes('SKIN')) {
+        useColor='#e65100'; useBg='#fff3e0'; useIcon='🖐️';
+      } else if(useTag.includes('STEAM')||useTag.includes('INHALE')) {
+        useColor='#4a148c'; useBg='#f3e5f5'; useIcon='💨';
+      } else if(useTag.includes('CHEW')) {
+        useColor='#5d4037'; useBg='#efebe9'; useIcon='🌰';
+      } else {
+        useColor='#0d47a1'; useBg='#e3f2fd'; useIcon='🥤';
+      }
 
-      const imgId='herb-img-'+diagIdx+'-'+idx+'-'+ingIdx+'-'+Math.random().toString(36).slice(2,6);
-      const wikiTitle=(ing.imageSearch||ing.herb||'').trim();
-      const wikiUrl=`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
-      setTimeout(()=>fetchHerbImage(imgId,wikiUrl,ing.herb), 200+ingIdx*150);
+      const imgId = 'hi-' + diagIdx + '-' + idx + '-' + ingIdx + '-' + Math.random().toString(36).slice(2,5);
+      const wikiTitle = (ing.imageSearch || ing.herb || '').trim();
+      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+      setTimeout(() => fetchHerbImage(imgId, wikiUrl, ing.herb), 300 + ingIdx*200);
 
       return `
         <div class="herb-card">
           <div class="herb-card-img-wrap" style="width:84px;height:84px;min-width:84px;">
             <img id="${imgId}" src="" alt="${ing.herb||''}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:none;" loading="lazy">
-            <div id="${imgId}-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);border-radius:8px;font-size:32px;">🌿</div>
+            <div id="${imgId}-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);border-radius:8px;font-size:30px;">🌿</div>
           </div>
           <div class="herb-card-info">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
               <strong style="font-size:15px;color:var(--green-deep);">${ing.herb||''}</strong>
-              <span style="background:${useBg};color:${useColor};font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;flex-shrink:0;">${useIcon} ${useTag||'INTERNAL'}</span>
+              <span style="background:${useBg};color:${useColor};font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;flex-shrink:0;">${useIcon} ${useTag}</span>
             </div>
-            ${ing.nigeriaName||ing.ghanaName?`<div style="font-size:12px;font-style:italic;color:var(--text-muted);margin-bottom:5px;">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' · ')}</div>`:''}
+            ${(ing.nigeriaName||ing.ghanaName) ? `<div style="font-size:12px;font-style:italic;color:var(--text-muted);margin-bottom:5px;">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' · ')}</div>` : ''}
             <div style="font-size:13px;color:var(--text-mid);margin-bottom:5px;"><strong>Amount:</strong> ${ing.quantity||'—'}</div>
-            ${ing.benefit?`<div style="background:var(--green-pale);border-left:3px solid var(--green-mid);padding:7px 10px;border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12.5px;color:var(--green-deep);line-height:1.5;"><strong>Why this herb:</strong> ${ing.benefit}</div>`:''}
+            ${ing.benefit ? `<div style="background:var(--green-pale);border-left:3px solid var(--green-mid);padding:7px 10px;border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12.5px;color:var(--green-deep);line-height:1.5;"><strong>Why this herb:</strong> ${ing.benefit}</div>` : ''}
             <div style="font-size:12.5px;color:var(--text-muted);">${ing.notes||''}</div>
           </div>
         </div>`;
     }).join('');
 
-    const prepSteps=(sol.preparation||[]).map((s,i)=>`
+    const prepSteps = (sol.preparation||[]).map((s,i) => `
       <li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');
-    const stopItems=(sol.stopConditions||[]).map(s=>`<li style="padding:3px 0;">• ${s}</li>`).join('');
-    const dos=sol.dosage||{};
-    const hvc=sol.herbVsConventional||{};
 
-    panel.innerHTML=`
+    const stopItems = (sol.stopConditions||[]).map(s =>
+      `<li style="padding:3px 0;">• ${s}</li>`).join('');
+
+    const dos = sol.dosage || {};
+    const hvc = sol.herbVsConventional || {};
+
+    // Administration method banner
+    const m = (dos.administrationMethod||'DRINK').toLowerCase();
+    let admCls, admIcon, admLabel, admInstruction;
+    if(m.includes('apply')||m.includes('skin')||m.includes('external')||m.includes('topical')) {
+      admCls='admin-apply'; admIcon='🖐️';
+      admLabel='APPLY TO SKIN — Do NOT Drink';
+      admInstruction='Rub or massage this remedy directly onto the affected area of the body. For EXTERNAL USE ONLY — do not swallow or drink it.';
+    } else if(m.includes('swallow')) {
+      admCls='admin-swallow'; admIcon='💊';
+      admLabel='SWALLOW — Take By Mouth';
+      admInstruction='Take this remedy by mouth and swallow whole. Do not chew unless instructed above.';
+    } else if(m.includes('chew')) {
+      admCls='admin-swallow'; admIcon='🌰';
+      admLabel='CHEW — Chew In Mouth';
+      admInstruction='Chew this remedy in your mouth. Swallow or spit as instructed by the preparation steps.';
+    } else if(m.includes('inhale')||m.includes('steam')) {
+      admCls='admin-inhale'; admIcon='💨';
+      admLabel='INHALE/STEAM — Breathe In Only';
+      admInstruction='Do NOT drink this remedy. Breathe in the steam or vapour from the prepared mixture as directed.';
+    } else {
+      admCls='admin-drink'; admIcon='🥤';
+      admLabel='DRINK — Take By Mouth';
+      admInstruction='Drink this remedy orally like a herbal tea or juice. Take it as directed in the dosage schedule below.';
+    }
+
+    panel.innerHTML = `
       <div class="sol-meta">
         <span class="sol-tag herb">🌿 ${sol.approach||''}</span>
         <span class="sol-tag duration">⏱ ${sol.duration||''}</span>
         <span class="sol-tag difficulty">📊 ${sol.difficulty||''}</span>
       </div>
+
       <div class="sec-title">🧪 Ingredients & Herbs</div>
       <div class="herb-cards-grid">${ingredRows}</div>
+
       <div class="sec-title">👩‍🍳 Preparation Steps</div>
-      <ul class="steps-list">${prepSteps}</ul>
+      <ul class="steps-list">${prepSteps || '<li><span class="step-num">!</span><span>No preparation steps provided — please try again.</span></li>'}</ul>
+
       <div class="dosage-box">
         <h4>💊 Dosage & Schedule</h4>
-        ${(()=>{
-          const m=(dos.administrationMethod||'').toLowerCase();
-          let cls,icon,label,instruction;
-          if(m.includes('apply')||m.includes('skin')||m.includes('external')||m.includes('topical')){cls='admin-apply';icon='🖐️';label='APPLY TO SKIN — Do NOT Drink';instruction='Rub or massage this remedy directly onto the affected area of the body. For external use only — do not swallow or drink it.';}
-          else if(m.includes('swallow')){cls='admin-swallow';icon='💊';label='SWALLOW — Take By Mouth';instruction='Take this remedy by mouth and swallow whole. Do not crush or chew unless instructed.';}
-          else if(m.includes('chew')){cls='admin-swallow';icon='🌰';label='CHEW — Chew In Mouth';instruction='Chew this remedy in your mouth. Swallow or spit as instructed above.';}
-          else if(m.includes('inhale')||m.includes('steam')){cls='admin-inhale';icon='💨';label='INHALE/STEAM — Breathe In';instruction='Do not drink. Breathe in the steam or vapour from the prepared mixture as directed.';}
-          else{cls='admin-drink';icon='🥤';label='DRINK — Take By Mouth';instruction='Drink this remedy orally as directed in the dosage schedule below.';}
-          return `<div class="admin-method ${cls}"><div style="width:100%;"><div style="font-size:16px;font-weight:800;margin-bottom:4px;">${icon} HOW TO USE: ${label}</div><div style="font-size:13px;opacity:0.9;line-height:1.5;">${instruction}</div></div></div>`;
-        })()}
+        <div class="admin-method ${admCls}">
+          <div style="width:100%;">
+            <div style="font-size:16px;font-weight:800;margin-bottom:4px;">${admIcon} HOW TO USE: ${admLabel}</div>
+            <div style="font-size:13px;opacity:0.9;line-height:1.5;">${admInstruction}</div>
+          </div>
+        </div>
         <div class="dosage-grid">
           <div class="dosage-item"><label>Amount per dose</label><span>${dos.amount||'—'}</span></div>
           <div class="dosage-item"><label>Frequency</label><span>${dos.frequency||'—'}</span></div>
           <div class="dosage-item"><label>Best time</label><span>${dos.timing||'—'}</span></div>
           <div class="dosage-item"><label>Course duration</label><span>${dos.duration||'—'}</span></div>
-          ${dos.childDose?`<div class="dosage-item"><label>Child dose (&lt;12)</label><span>${dos.childDose}</span></div>`:''}
-          ${dos.pregnancySafe?`<div class="dosage-item"><label>Pregnancy safe?</label><span>${dos.pregnancySafe}</span></div>`:''}
+          ${dos.childDose ? `<div class="dosage-item"><label>Child dose (&lt;12yrs)</label><span>${dos.childDose}</span></div>` : ''}
+          ${dos.pregnancySafe ? `<div class="dosage-item"><label>Pregnancy safe?</label><span>${dos.pregnancySafe}</span></div>` : ''}
         </div>
       </div>
+
       <div class="sec-title">⚖️ Herbs vs. Conventional Medicine</div>
       <div class="compare-row">
-        <div class="compare-box"><div class="compare-head herb">🌿 Herbal Approach</div><div class="compare-body">${hvc.herbalApproach||'—'}</div></div>
-        <div class="compare-box"><div class="compare-head conv">💊 Conventional Medicine</div><div class="compare-body">${hvc.conventionalApproach||'—'}</div></div>
+        <div class="compare-box">
+          <div class="compare-head herb">🌿 Herbal Approach</div>
+          <div class="compare-body">${hvc.herbalApproach||'—'}</div>
+        </div>
+        <div class="compare-box">
+          <div class="compare-head conv">💊 Conventional Medicine</div>
+          <div class="compare-body">${hvc.conventionalApproach||'—'}</div>
+        </div>
       </div>
-      ${hvc.interactions?`<div class="interaction-warn">⚠️ <strong>Drug Interaction Notice:</strong> ${hvc.interactions}</div>`:''}
+      ${hvc.interactions ? `<div class="interaction-warn">⚠️ <strong>Drug Interaction Notice:</strong> ${hvc.interactions}</div>` : ''}
+
       <div class="stop-box">
         <strong>🛑 Stop Immediately If You Experience:</strong>
-        <ul style="margin-top:6px;list-style:none;">${stopItems}</ul>
+        <ul style="margin-top:6px;list-style:none;">${stopItems || '<li>• Any severe allergic reaction such as rash, swelling or difficulty breathing</li><li>• Significant worsening of symptoms within 48 hours</li>'}</ul>
         <p style="margin-top:8px;font-size:12.5px;">Stop the remedy and seek immediate medical attention if any of the above occur.</p>
       </div>`;
+
     container.appendChild(panel);
   });
 }
@@ -1053,38 +1108,30 @@ function updateSupplementCTA(data) {
   }
 }
 
-// ===== HERB IMAGE FETCHING =====
-// Fetches real plant photos from Wikipedia Commons — free, no API key, high quality.
-// Falls back gracefully if no image is found (shows green leaf placeholder).
+// ===== HERB IMAGE FETCHING from Wikipedia (free, no API key) =====
 async function fetchHerbImage(imgId, wikiUrl, herbName) {
   try {
     const resp = await fetch(wikiUrl);
-    if (!resp.ok) return;
+    if(!resp.ok) return;
     const data = await resp.json();
     const pages = data?.query?.pages;
-    if (!pages) return;
+    if(!pages) return;
     const page = Object.values(pages)[0];
     const thumbUrl = page?.thumbnail?.source;
-    if (!thumbUrl) return;
-
+    if(!thumbUrl) return;
     const imgEl = document.getElementById(imgId);
     const placeholder = document.getElementById(imgId + '-placeholder');
-    if (!imgEl) return;
-
+    if(!imgEl) return;
     imgEl.onload = () => {
       imgEl.style.display = 'block';
-      if (placeholder) placeholder.style.display = 'none';
+      if(placeholder) placeholder.style.display = 'none';
     };
-    imgEl.onerror = () => {
-      // Image failed to load — keep placeholder showing
-    };
+    imgEl.onerror = () => {};
     imgEl.src = thumbUrl;
-  } catch (e) {
-    // Network error or API unavailable — placeholder remains, no user impact
-  }
+  } catch(e) {}
 }
 
-
+// ===== CONSULTATION HISTORY (saved locally on this device only) =====
 const HISTORY_KEY = 'afriherb_history';
 const MAX_HISTORY = 20;
 
