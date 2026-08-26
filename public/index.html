@@ -209,7 +209,7 @@
         <span class="badge">50+ Conditions</span>
         <span class="badge">Verified Herbs</span>
         <span class="badge">Powered by Groq AI</span>
-        <button id="install-btn" onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
+        <button type="button" id="install-btn" onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
         <span class="badge" id="admin-install-count" style="display:none;background:#0a3d1f;border:1px solid #c8860a;"></span>
       </div>
     </div>
@@ -331,7 +331,7 @@
 
       <!-- KNOWN CONDITIONS -->
       <div class="field" style="margin-bottom:16px;">
-        <label>Known conditions (tick all that apply)</label>
+        <label style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--green-deep);">Known Conditions (Tick all that apply)</label>
         <div class="check-grid" id="conditions-grid"></div>
       </div>
 
@@ -359,7 +359,7 @@
         </select>
       </div>
 
-      <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+      <button type="button" class="submit-btn" id="submit-btn" onclick="submitForm()">
         🌿 Analyze &amp; Generate Herbal Solutions
       </button>
     </div>
@@ -369,7 +369,7 @@
   <div class="loading-wrap" id="loading-wrap">
     <div class="spinner"></div>
     <p class="loading-text" id="loading-text">Consulting traditional medicine knowledge base...</p>
-    <p class="loading-sub">Powered by Google Gemini AI — this may take 15–30 seconds</p>
+    <p class="loading-sub">Powered by Groq AI — this may take 15–30 seconds</p>
   </div>
 
   <!-- RESULTS -->
@@ -378,7 +378,7 @@
     <div class="lang-strip">
       <span>🌍 Results language:</span>
       <span id="lang-label" style="font-weight:600;">English</span>
-      <button class="reset-btn" style="margin-left:auto;margin-top:0;padding:6px 14px;font-size:12.5px;" onclick="resetForm()">← New Consultation</button>
+      <button type="button" class="reset-btn" style="margin-left:auto;margin-top:0;padding:6px 14px;font-size:12.5px;" onclick="resetForm()">← New Consultation</button>
     </div>
 
     <div class="special-warn" id="pregnancy-warn">
@@ -445,9 +445,9 @@
 
     <!-- ACTIONS -->
     <div class="no-print" style="text-align:center;">
-      <button class="reset-btn" onclick="resetForm()">← New Consultation</button>
-      <button class="reset-btn" style="margin-left:10px;" onclick="window.print()">🖨️ Print Results</button>
-      <button class="reset-btn" style="margin-left:10px;" onclick="downloadPDF()">📄 Download PDF</button>
+      <button type="button" class="reset-btn" onclick="resetForm()">← New Consultation</button>
+      <button type="button" class="reset-btn" style="margin-left:10px;" onclick="window.print()">🖨️ Print Results</button>
+      <button type="button" class="reset-btn" style="margin-left:10px;" onclick="downloadPDF()">📄 Download PDF</button>
     </div>
 
     <!-- HISTORY -->
@@ -739,7 +739,8 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
 
     if(pregnancy!=='No') document.getElementById('pregnancy-warn').style.display='block';
     if(child==='Yes') document.getElementById('child-warn').style.display='block';
-    document.getElementById('lang-label').textContent = langLabel;
+    const langLabelEl = document.getElementById('lang-label');
+    if(langLabelEl) langLabelEl.textContent = langLabel;
 
     saveConsultationToHistory({
       date: new Date().toISOString(),
@@ -903,6 +904,7 @@ function renderSolutionsForDiagnosis(diagIdx, data) {
 
   solutions.forEach((sol, idx) => {
     const tab = document.createElement('button');
+    tab.type = 'button';
     tab.type = 'button';
     tab.className = 'sol-tab' + (idx===0 ? ' active' : '');
     tab.textContent = labels[idx] || ('Solution '+(idx+1));
