@@ -31,7 +31,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             model,
             temperature: 0.4,
-            max_tokens: 1000,
+            max_tokens: 4096,
             messages: [
               {
                 role: 'system',
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
             response.status === 404 || response.status === 400 || response.status === 429;
 
           if (tryNext) {
-            lastError = `${model}: ${data.error?.message?.slice(0, 80)}`;
+            lastError = `${model}: ${data.error?.message?.slice(0, 120)}`;
             if (response.status === 429) await new Promise(r => setTimeout(r, 2000));
             continue;
           }
