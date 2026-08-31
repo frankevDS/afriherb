@@ -12,8 +12,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GROQ_API_KEY not set in Vercel environment variables.' });
     }
 
-    // Current active Groq models as of August 2026
-    // Source: console.groq.com/docs/deprecations
     const MODELS = [
       'openai/gpt-oss-120b',
       'qwen/qwen3.6-27b',
@@ -34,11 +32,10 @@ export default async function handler(req, res) {
             model,
             temperature: 0.4,
             max_tokens: 1000,
-            response_format: { type: 'json_object' },
             messages: [
               {
                 role: 'system',
-                content: systemPrompt + '\n\nReturn a single valid JSON object only. No markdown. No extra text.'
+                content: systemPrompt + '\n\nReturn a single valid JSON object only. No markdown fences. No extra text before or after the JSON.'
               },
               { role: 'user', content: userMessage }
             ]
@@ -54,6 +51,7 @@ export default async function handler(req, res) {
             msg.includes('not exist') || msg.includes('not found') ||
             msg.includes('too large') || msg.includes('tpm') ||
             msg.includes('rate limit') || msg.includes('token') ||
+            msg.includes('json') || msg.includes('validate') ||
             response.status === 404 || response.status === 400 || response.status === 429;
 
           if (tryNext) {
@@ -80,7 +78,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(503).json({
-      error: `All models temporarily unavailable. Please wait 1 minute and try again. (${lastError})`
+      error: `All models temporarily unavailable. Please wait 1 minute and try again.`
     });
 
   } catch (e) {
