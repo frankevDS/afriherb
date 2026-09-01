@@ -10,12 +10,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AfriHerb">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0a3d1f">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AfriHerb">
-<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -209,7 +206,7 @@
         <span class="badge">50+ Conditions</span>
         <span class="badge">Verified Herbs</span>
         <span class="badge">Powered by Groq AI</span>
-        <button type="button" id="install-btn" onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
+        <button id="install-btn" onclick="installApp()" style="background:#c8860a;color:white;border:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">📲 Install App</button>
         <span class="badge" id="admin-install-count" style="display:none;background:#0a3d1f;border:1px solid #c8860a;"></span>
       </div>
     </div>
@@ -236,10 +233,9 @@
       <div class="field" style="margin-bottom:20px;">
         <label>Your Country *</label>
         <div class="country-row">
-          <button type="button" class="country-btn" id="btn-gh" onclick="selectCountry('Ghana')"><span class="flag">🇬🇭</span> Ghana</button>
-          <button type="button" class="country-btn" id="btn-ng" onclick="selectCountry('Nigeria')"><span class="flag">🇳🇬</span> Nigeria</button>
+          <button class="country-btn" id="btn-gh" onclick="selectCountry('Ghana')"><span class="flag">🇬🇭</span> Ghana</button>
+          <button class="country-btn" id="btn-ng" onclick="selectCountry('Nigeria')"><span class="flag">🇳🇬</span> Nigeria</button>
         </div>
-        <input type="hidden" id="country-hidden" value="">
       </div>
 
       <!-- BASIC INFO -->
@@ -331,7 +327,7 @@
 
       <!-- KNOWN CONDITIONS -->
       <div class="field" style="margin-bottom:16px;">
-        <label style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--green-deep);">Known Conditions (Tick all that apply)</label>
+        <label>Known conditions (tick all that apply)</label>
         <div class="check-grid" id="conditions-grid"></div>
       </div>
 
@@ -359,7 +355,7 @@
         </select>
       </div>
 
-      <button type="button" class="submit-btn" id="submit-btn" onclick="submitForm()">
+      <button class="submit-btn" id="submit-btn" onclick="submitForm()">
         🌿 Analyze &amp; Generate Herbal Solutions
       </button>
     </div>
@@ -369,7 +365,7 @@
   <div class="loading-wrap" id="loading-wrap">
     <div class="spinner"></div>
     <p class="loading-text" id="loading-text">Consulting traditional medicine knowledge base...</p>
-    <p class="loading-sub">Powered by Groq AI — this may take 15–30 seconds</p>
+    <p class="loading-sub">Powered by Google Gemini AI — this may take 15–30 seconds</p>
   </div>
 
   <!-- RESULTS -->
@@ -378,7 +374,7 @@
     <div class="lang-strip">
       <span>🌍 Results language:</span>
       <span id="lang-label" style="font-weight:600;">English</span>
-      <button type="button" class="reset-btn" style="margin-left:auto;margin-top:0;padding:6px 14px;font-size:12.5px;" onclick="resetForm()">← New Consultation</button>
+      <button class="reset-btn" style="margin-left:auto;margin-top:0;padding:6px 14px;font-size:12.5px;" onclick="resetForm()">← New Consultation</button>
     </div>
 
     <div class="special-warn" id="pregnancy-warn">
@@ -415,10 +411,10 @@
 
     <!-- HOSPITAL -->
     <div class="card">
-      <div class="card-header"><h2>⛑️ When to Go to the Hospital — Act Fast</h2></div>
+      <div class="card-header"><h2>⛑️ When to Go to the Hospital</h2></div>
       <div class="card-body">
         <div id="hospital-triggers"></div>
-        <div id="emergency-contacts" style="margin-top:14px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;" id="emergency-contacts"></div>
       </div>
     </div>
 
@@ -445,9 +441,9 @@
 
     <!-- ACTIONS -->
     <div class="no-print" style="text-align:center;">
-      <button type="button" class="reset-btn" onclick="resetForm()">← New Consultation</button>
-      <button type="button" class="reset-btn" style="margin-left:10px;" onclick="window.print()">🖨️ Print Results</button>
-      <button type="button" class="reset-btn" style="margin-left:10px;" onclick="downloadPDF()">📄 Download PDF</button>
+      <button class="reset-btn" onclick="resetForm()">← New Consultation</button>
+      <button class="reset-btn" style="margin-left:10px;" onclick="window.print()">🖨️ Print Results</button>
+      <button class="reset-btn" style="margin-left:10px;" onclick="downloadPDF()">📄 Download PDF</button>
     </div>
 
     <!-- HISTORY -->
@@ -518,8 +514,6 @@ function buildConditionsGrid() {
 
 function selectCountry(c) {
   selectedCountry = c;
-  const hidden = document.getElementById('country-hidden');
-  if(hidden) hidden.value = c;
   document.getElementById('btn-gh').classList.toggle('active', c==='Ghana');
   document.getElementById('btn-ng').classList.toggle('active', c==='Nigeria');
 }
@@ -543,8 +537,6 @@ function resetForm() {
   document.getElementById('severity-score').value='5';
   document.getElementById('severity-score-val').textContent='5';
   selectedCountry=''; selectedConditions=[];
-  const hidden = document.getElementById('country-hidden');
-  if(hidden) hidden.value = '';
   document.querySelectorAll('.check-item').forEach(d=>{d.classList.remove('selected');d.querySelector('input').checked=false;});
   document.getElementById('btn-gh').classList.remove('active');
   document.getElementById('btn-ng').classList.remove('active');
@@ -558,23 +550,9 @@ async function submitForm() {
   const gender=document.getElementById('gender').value;
   const complaint=document.getElementById('complaint').value.trim();
   const duration=document.getElementById('duration').value;
-  // 3-way country detection: JS var → hidden input → active button class
-  const countryFromDOM = document.getElementById('country-hidden')?.value || '';
-  if(!selectedCountry && countryFromDOM) selectedCountry = countryFromDOM;
-  if(!selectedCountry) {
-    if(document.getElementById('btn-gh')?.classList.contains('active')) selectedCountry='Ghana';
-    else if(document.getElementById('btn-ng')?.classList.contains('active')) selectedCountry='Nigeria';
-  }
-
   if(!selectedCountry||!age||!gender||!complaint||!duration){
-    let missing=[];
-    if(!selectedCountry) missing.push('Country (click Ghana or Nigeria)');
-    if(!age) missing.push('Age');
-    if(!gender) missing.push('Gender');
-    if(!complaint) missing.push('Main Complaint');
-    if(!duration) missing.push('Duration');
     errorBox.style.display='block';
-    errorBox.textContent='Please fill in: '+missing.join(', ')+'.';
+    errorBox.textContent='Please fill in: Country, Age, Gender, Main Complaint, and Duration.';
     errorBox.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
@@ -609,7 +587,61 @@ async function submitForm() {
 
   const langLabel = {en:'English',pidgin:'Pidgin English 🇳🇬',twi:'Twi / Akan 🇬🇭',yoruba:'Yoruba 🇳🇬',hausa:'Hausa 🇳🇬'}[lang];
 
-  const systemPrompt = `LANGUAGE: ${langNote}. Respond entirely in that language.;
+  const systemPrompt = `You are AfriHerb, an expert AI panel of doctors, herbalists, physicians, and traditional medicine practitioners from Ghana and Nigeria. You have deep, verified knowledge of West African medicinal plants including: Moringa (Zogale/Drumstick tree), Bitter Leaf (Ewuro/Onugbu/Abeduru), Neem (Dongoyaro/Nimtree), Scent Leaf / African Basil (Efirin/Nchuanwu/Akoko besa), Pawpaw/Papaya leaves and seeds, Soursop / Graviole leaves (Eko oyibo), Aloe Vera, Turmeric (Ata-ile pupa/Kooko), Ginger (Jinja/Atale), Garlic (Ayu/Gyeene), Lemon, Lime, Black Seed / Nigella sativa (Habbatus sauda), Zobo / Hibiscus / Roselle (Isapa/Sobolo), Tiger Nut (Aya/Atadwe), Clove (Kanafuru/Pepre), Cinnamon (Oloorun), Fenugreek (Hulba/Ewé ewedu), Flaxseed, Alligator pepper (Atare/Efom wisa), Negro pepper (Eru/Uda/Hwentia), Uziza leaf (Piper guineense), Utazi leaf (Gongronema latifolium), Prekese / Aidan fruit (Tetrapleura tetraptera), Kontomire / Cocoyam leaves, Dawadawa / African Locust Bean (Iru/Dawadawa), Aju Mbaise (postpartum herb), Bitter Kola / Garcinia kola (Obi Akika/Bese kooko), Kola nut, Mahogany seeds, Guava leaves (Goba/Guava), Mango leaves and bark, African Walnut (Asala/Oye), Shea butter tree bark and leaves, Senna leaves (Ewe asunwun), Plantain unripe (ogede agbagba), Coconut oil and water, Lemongrass (Kooko sa/Ahwerewa), African Pepper (Cameroon pepper), Cayenne pepper, Dandelion, Baobab (Kuka/Ose), Tamarind (Tsamiya/Otamarind), and many more verified plants.
+
+You cover 50+ conditions including: Diabetes, High/Low Blood Pressure, Hypertension, Hypotension, Migraine, Liver disease, Kidney problems, Asthma, Malaria, Typhoid, Cataracts, Glaucoma, Obesity, High Cholesterol, Arthritis, Fibroid, Prostate issues, Menstrual disorders, Menopause, Fertility, Anaemia, Ulcer, Constipation, Diarrhoea, Skin conditions, Piles, Palpitations, Insomnia, Anxiety, Depression, Memory issues, Thyroid disorders, UTI, STI, Childhood fever, Worms, Jaundice, Sickle cell, Eczema, Toothache, Back pain, Detox, and more.
+
+CRITICAL RULES:
+1. 🚨 LANGUAGE REQUIREMENT (HIGHEST PRIORITY — FOLLOW THIS EXACTLY): ${langNote}
+2. Always give LOCAL herb names in Nigerian languages (Yoruba, Igbo, Hausa) AND Ghanaian languages (Twi/Ga/Ewe) in addition to following Rule 1's language requirement.
+3. Give EXACT measurements (e.g., 10 fresh leaves, 2 tablespoons, 500ml water).
+4. Each solution must have full preparation steps, dosage schedule (when, how much, how often, how many days), and stop conditions.
+5. Compare herbal vs conventional medicine side-by-side.
+6. Flag any drug interactions with the patient's listed medications.
+7. Include child-adjusted doses and pregnancy safety for each solution.
+8. List clear hospital emergency triggers.
+9. Use ONLY verified, evidence-informed herbs. Never invent remedies.
+
+RESPOND WITH ONLY A VALID JSON OBJECT — no markdown, no explanation, no preamble. Exact structure:
+{
+  "patientSummary": "2-sentence summary",
+  "diagnoses": [
+    {"rank":1,"name":"Condition Name","likelihood":85,"severity":"mild|moderate|serious","description":"2-3 sentences about this condition for this specific patient"}
+  ],
+  "solutions": [
+    {
+      "number":1,
+      "title":"Solution title",
+      "approach":"Simple Home Remedy|Herbal Blend|Full Herbal Protocol",
+      "difficulty":"Easy|Intermediate|Advanced",
+      "duration":"e.g. 14 days",
+      "ingredients":[
+        {"herb":"English name","nigeriaName":"Yoruba/Igbo/Hausa name","ghanaName":"Twi/Ga name","quantity":"exact amount","notes":"where to find it, what part to use"}
+      ],
+      "preparation":["Step 1 detail","Step 2 detail","Step 3 detail"],
+      "dosage":{
+        "administrationMethod":"YOU MUST PICK EXACTLY ONE: 'DRINK' (liquid remedy taken by mouth e.g. herbal tea, juice, decoction), 'SWALLOW' (solid taken by mouth e.g. seeds, capsules, tablets), 'APPLY TO SKIN' (rubbed or massaged onto body externally e.g. oil, paste, cream — NOT taken by mouth), 'CHEW' (chewed in mouth then swallowed or spat e.g. bitter kola, ginger root), 'INHALE/STEAM' (breathed in as steam or vapour). THIS FIELD IS MANDATORY — never leave it empty or vague.",
+        "amount":"e.g. 1 cup (250ml)",
+        "frequency":"e.g. twice daily",
+        "timing":"e.g. morning on empty stomach and evening after food",
+        "duration":"e.g. 14 consecutive days",
+        "childDose":"Adjusted dose for child under 12",
+        "pregnancySafe":"yes|no|with caution — brief explanation"
+      },
+      "stopConditions":["Stop if you notice symptom 1","Stop if you notice symptom 2"],
+      "herbVsConventional":{
+        "herbalApproach":"2-3 sentences on how these herbs address the condition",
+        "conventionalApproach":"2-3 sentences on the standard drug treatment (name the drugs)",
+        "interactions":"Any interaction warning based on patient medications, or 'No known interactions with listed medications'"
+      }
+    }
+  ],
+  "hospitalTriggers":["Trigger 1","Trigger 2","Trigger 3","Trigger 4","Trigger 5"],
+  "emergencyContacts":{
+    "ghana":"Ghana National Ambulance: 0800-111-222 | KATH Kumasi: 032-2022-301 | Korle Bu Accra: 030-2665401",
+    "nigeria":"Nigeria Emergency: 112 | LUTH Lagos: 01-7734561 | UCH Ibadan: 02-2410088 | ABUTH Kaduna: 069-330050"
+  }
+}`;
 
   const userMessage = `Patient Profile:
 - Country: ${selectedCountry}
@@ -636,7 +668,7 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
       body: JSON.stringify({systemPrompt, userMessage})
     });
     const data = await response.json();
-    if(!response.ok) throw new Error(data.error||'API error');
+    if(!response.ok) throw new Error(data.error || data.debug || 'API error');
 
     clearInterval(mInt);
     const raw = data.text || '';
@@ -664,8 +696,7 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
 
     if(pregnancy!=='No') document.getElementById('pregnancy-warn').style.display='block';
     if(child==='Yes') document.getElementById('child-warn').style.display='block';
-    const langLabelEl = document.getElementById('lang-label');
-    if(langLabelEl) langLabelEl.textContent = langLabel;
+    document.getElementById('lang-label').textContent = langLabel;
 
     saveConsultationToHistory({
       date: new Date().toISOString(),
@@ -691,259 +722,124 @@ Analyze this patient. Provide 3 differential diagnoses and 3 complete herbal sol
     btn.disabled=false;
     document.getElementById('form-card').style.display='block';
     errorBox.style.display='block';
-    errorBox.textContent='Error: '+err.message+'. Please check your API key in Vercel environment variables and try again.';
+    const msg = err.message || '';
+    if(msg.toLowerCase().includes('busy') || msg.toLowerCase().includes('unavailable') || msg.toLowerCase().includes('wait')) {
+      errorBox.textContent = '⏳ The AI is temporarily busy. Please wait 1 minute and try again.';
+    } else if(msg.toLowerCase().includes('key') || msg.toLowerCase().includes('auth') || msg.toLowerCase().includes('401')) {
+      errorBox.textContent = '🔑 API key issue. Please go to console.groq.com, create a new API key, and update it in Vercel environment variables, then redeploy.';
+    } else if(msg.toLowerCase().includes('parse') || msg.toLowerCase().includes('json')) {
+      errorBox.textContent = '⚠️ The AI returned an incomplete response. Please try again.';
+    } else {
+      errorBox.textContent = '⚠️ ' + msg;
+    }
     window.scrollTo({top:0,behavior:'smooth'});
   }
 }
 
 function renderResults(data) {
-  window._afriherbData = data;
-
-  // ── DIAGNOSES — all 3 clickable ──
-  const dg = document.getElementById('diag-grid');
-  dg.innerHTML = '';
-  (data.diagnoses||[]).forEach((d, i) => {
-    const sevClass = d.severity==='mild' ? 'severity-mild' : d.severity==='moderate' ? 'severity-moderate' : 'severity-serious';
-    const card = document.createElement('div');
-    card.className = 'diag-card' + (i===0 ? ' top' : '');
-    card.style.cursor = 'pointer';
-    card.id = 'diag-card-' + i;
-    card.onclick = () => selectDiagnosis(i);
-    card.innerHTML = `
-      <div class="diag-num" id="diag-label-${i}">${i===0 ? '★ MOST LIKELY' : '#'+(i+1)}</div>
+  // Diagnoses
+  const dg=document.getElementById('diag-grid');
+  dg.innerHTML='';
+  (data.diagnoses||[]).forEach((d,i)=>{
+    const sevClass=d.severity==='mild'?'severity-mild':d.severity==='moderate'?'severity-moderate':'severity-serious';
+    const card=document.createElement('div');
+    card.className='diag-card'+(i===0?' top':'');
+    card.innerHTML=`
+      <div class="diag-num">${i===0?'★ MOST LIKELY':'#'+(i+1)}</div>
       <div class="diag-name">${d.name||''}</div>
       <div class="diag-pct">${d.likelihood||''}%</div>
       <div class="diag-pct-label">likelihood match</div>
       <div style="margin-top:6px;"><span class="${sevClass}">${(d.severity||'').charAt(0).toUpperCase()+(d.severity||'').slice(1)}</span></div>
-      <div class="diag-desc">${d.description||''}</div>
-      <div style="margin-top:8px;font-size:11.5px;font-weight:600;color:var(--green-mid);">${i===0 ? '🌿 Viewing solutions below ↓' : '👆 Click to see herbal solutions'}</div>`;
+      <div class="diag-desc">${d.description||''}</div>`;
     dg.appendChild(card);
   });
 
-  // Render solutions for diagnosis 1 by default
-  renderSolutionsForDiagnosis(0, data);
+  // Solutions
+  const container=document.getElementById('solutions-container');
+  container.innerHTML='';
+  const tabs=document.getElementById('sol-tabs');
+  tabs.innerHTML='';
+  const labels=['🌱 Solution 1 — Simple Home Remedy','🫚 Solution 2 — Herbal Blend','🌿 Solution 3 — Full Herbal Protocol'];
 
-  // ── HOSPITAL TRIGGERS ──
-  const ht = document.getElementById('hospital-triggers');
-  const triggers = data.hospitalTriggers || [];
-  if(triggers.length > 0) {
-    ht.innerHTML = `<ul style="list-style:none;">${triggers.map(t=>`
-      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;align-items:flex-start;">
-        <span style="color:var(--danger);font-size:18px;line-height:1;flex-shrink:0;">🚨</span><span>${t}</span>
-      </li>`).join('')}</ul>`;
-  } else {
-    ht.innerHTML = `<ul style="list-style:none;">
-      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
-        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Fever above 39°C (102°F) that does not reduce after 2 days of herbal treatment</span></li>
-      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
-        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Severe chest pain, difficulty breathing, or sudden weakness on one side of the body</span></li>
-      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
-        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Yellowing of the skin or whites of the eyes (jaundice) with dark urine</span></li>
-      <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;">
-        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Loss of consciousness, convulsions, or uncontrolled vomiting for more than 6 hours</span></li>
-      <li style="padding:8px 0;font-size:14px;display:flex;gap:10px;">
-        <span style="color:var(--danger);font-size:18px;">🚨</span><span>Symptoms that significantly worsen within 48 hours of starting any herbal remedy</span></li>
-    </ul>`;
-  }
-
-  // ── EMERGENCY CONTACTS — full detailed list ──
-  const ec = data.emergencyContacts || {};
-  const ghanaNumbers = ec.ghana || 'Ghana National Ambulance: 0800-111-222 | Korle Bu Teaching Hospital Accra: 030-266-5401 | KATH Kumasi: 032-202-2301 | Tamale Teaching Hospital: 037-202-2430 | Ghana Police: 191';
-  const nigeriaNumbers = ec.nigeria || 'Nigeria Emergency: 112 | LUTH Lagos: 0703-453-8997 | UCH Ibadan: 0802-316-1496 | ABUTH Zaria: 0803-703-1084 | UNTH Enugu: 0803-491-9971 | Nigeria Police: 199';
-
-  document.getElementById('emergency-contacts').innerHTML = `
-    <div style="grid-column:1/-1;background:#fff3f3;border:1.5px solid #e88080;border-radius:12px;padding:18px 20px;">
-      <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.4px;">🚨 Emergency — Call Immediately if Symptoms Are Severe</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;">🇬🇭 Ghana Emergency Numbers</div>
-          <div style="font-size:13px;color:var(--text-mid);line-height:2.2;">
-            🚑 <strong>National Ambulance:</strong> <a href="tel:0800111222" style="color:var(--danger);font-weight:700;text-decoration:none;">0800-111-222</a> <em style="font-size:11px;">(Free, 24hrs)</em><br>
-            🏥 <strong>Korle Bu Teaching Hospital, Accra:</strong> <a href="tel:+233302665401" style="color:var(--green-deep);text-decoration:none;">030-266-5401</a><br>
-            🏥 <strong>KATH, Kumasi:</strong> <a href="tel:+233322022301" style="color:var(--green-deep);text-decoration:none;">032-202-2301</a><br>
-            🏥 <strong>Tamale Teaching Hospital:</strong> <a href="tel:+233372022430" style="color:var(--green-deep);text-decoration:none;">037-202-2430</a><br>
-            🚔 <strong>Ghana Police Emergency:</strong> <a href="tel:191" style="color:var(--danger);font-weight:700;text-decoration:none;">191</a><br>
-            🔥 <strong>Fire & Rescue Service:</strong> <a href="tel:192" style="color:var(--danger);text-decoration:none;">192</a>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;">🇳🇬 Nigeria Emergency Numbers</div>
-          <div style="font-size:13px;color:var(--text-mid);line-height:2.2;">
-            🚑 <strong>National Emergency:</strong> <a href="tel:112" style="color:var(--danger);font-weight:700;text-decoration:none;">112</a> <em style="font-size:11px;">(Free, 24hrs)</em><br>
-            🏥 <strong>LUTH Lagos:</strong> <a href="tel:+2347034538997" style="color:var(--green-deep);text-decoration:none;">0703-453-8997</a><br>
-            🏥 <strong>UCH Ibadan:</strong> <a href="tel:+2348023161496" style="color:var(--green-deep);text-decoration:none;">0802-316-1496</a><br>
-            🏥 <strong>ABUTH Zaria:</strong> <a href="tel:+2348037031084" style="color:var(--green-deep);text-decoration:none;">0803-703-1084</a><br>
-            🏥 <strong>UNTH Enugu:</strong> <a href="tel:+2348034919971" style="color:var(--green-deep);text-decoration:none;">0803-491-9971</a><br>
-            🚔 <strong>Nigeria Police Emergency:</strong> <a href="tel:199" style="color:var(--danger);font-weight:700;text-decoration:none;">199</a>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-  updateSupplementCTA(data);
-}
-
-// ── Switch which diagnosis solutions are shown ──
-function selectDiagnosis(diagIdx) {
-  const data = window._afriherbData;
-  if(!data) return;
-
-  document.querySelectorAll('.diag-card').forEach((card, i) => {
-    card.classList.toggle('top', i === diagIdx);
-    const lbl = document.getElementById('diag-label-' + i);
-    if(lbl) lbl.textContent = i === diagIdx ? '★ MOST LIKELY' : '#'+(i+1);
-    const hints = card.querySelectorAll('div');
-    const last = hints[hints.length-1];
-    if(last && last.style && last.style.fontSize === '11.5px') {
-      last.textContent = i === diagIdx ? '🌿 Viewing solutions below ↓' : '👆 Click to see herbal solutions';
-    }
-  });
-
-  renderSolutionsForDiagnosis(diagIdx, data);
-
-  setTimeout(() => {
-    const sol = document.getElementById('solutions-container');
-    if(sol) sol.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 150);
-}
-
-// ── Render 3 solutions for a given diagnosis ──
-function renderSolutionsForDiagnosis(diagIdx, data) {
-  const diag = (data.diagnoses||[])[diagIdx];
-  // Get solutions from per-diagnosis array if available, else from root solutions
-  const allSolutions = (diag && diag.solutions && diag.solutions.length >= 1)
-    ? diag.solutions
-    : (data.solutions || []);
-  const solutions = allSolutions.slice(0, 3);
-
-  const container = document.getElementById('solutions-container');
-  container.innerHTML = '';
-  const tabs = document.getElementById('sol-tabs');
-  tabs.innerHTML = '';
-
-  const labels = [
-    '🌱 Solution 1 — Simple Home Remedy',
-    '🫚 Solution 2 — Herbal Blend',
-    '🌿 Solution 3 — Full Herbal Protocol'
-  ];
-
-  solutions.forEach((sol, idx) => {
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.type = 'button';
-    tab.className = 'sol-tab' + (idx===0 ? ' active' : '');
-    tab.textContent = labels[idx] || ('Solution '+(idx+1));
-    tab.onclick = () => showSolution(idx);
+  (data.solutions||[]).forEach((sol,idx)=>{
+    const tab=document.createElement('button');
+    tab.className='sol-tab'+(idx===0?' active':'');
+    tab.textContent=labels[idx]||('Solution '+(idx+1));
+    tab.onclick=()=>showSolution(idx);
     tabs.appendChild(tab);
 
-    const panel = document.createElement('div');
-    panel.className = 'sol-panel' + (idx===0 ? ' active' : '');
+    const panel=document.createElement('div');
+    panel.className='sol-panel'+(idx===0?' active':'');
 
-    // Cap ingredients at 3 max
-    const ingredients = (sol.ingredients||[]).slice(0, 3);
+    const ingredRows=(sol.ingredients||[]).map(ing=>`
+      <tr>
+        <td><strong>${ing.herb||''}</strong><br><span class="local">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' / ')}</span></td>
+        <td>${ing.quantity||''}</td>
+        <td>${ing.notes||''}</td>
+      </tr>`).join('');
 
-    const ingredRows = ingredients.map((ing, ingIdx) => {
-      const useTag = (ing.use||'INTERNAL').toUpperCase();
-      let useColor='#1a6b3a', useBg='#e8f5ee', useIcon='💊';
-      if(useTag.includes('EXTERNAL')||useTag.includes('TOPICAL')||useTag.includes('SKIN')) {
-        useColor='#e65100'; useBg='#fff3e0'; useIcon='🖐️';
-      } else if(useTag.includes('STEAM')||useTag.includes('INHALE')) {
-        useColor='#4a148c'; useBg='#f3e5f5'; useIcon='💨';
-      } else if(useTag.includes('CHEW')) {
-        useColor='#5d4037'; useBg='#efebe9'; useIcon='🌰';
-      } else {
-        useColor='#0d47a1'; useBg='#e3f2fd'; useIcon='🥤';
-      }
-
-      const imgId = 'hi-' + diagIdx + '-' + idx + '-' + ingIdx + '-' + Math.random().toString(36).slice(2,5);
-      const wikiTitle = (ing.imageSearch || ing.herb || '').trim();
-      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
-      setTimeout(() => fetchHerbImage(imgId, wikiUrl, ing.herb), 300 + ingIdx*200);
-
-      return `
-        <div class="herb-card">
-          <div class="herb-card-img-wrap" style="width:84px;height:84px;min-width:84px;">
-            <img id="${imgId}" src="" alt="${ing.herb||''}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:none;" loading="lazy">
-            <div id="${imgId}-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);border-radius:8px;font-size:30px;">🌿</div>
-          </div>
-          <div class="herb-card-info">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-              <strong style="font-size:15px;color:var(--green-deep);">${ing.herb||''}</strong>
-              <span style="background:${useBg};color:${useColor};font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;flex-shrink:0;">${useIcon} ${useTag}</span>
-            </div>
-            ${(ing.nigeriaName||ing.ghanaName) ? `<div style="font-size:12px;font-style:italic;color:var(--text-muted);margin-bottom:5px;">${[ing.nigeriaName,ing.ghanaName].filter(Boolean).join(' · ')}</div>` : ''}
-            <div style="font-size:13px;color:var(--text-mid);margin-bottom:5px;"><strong>Amount:</strong> ${ing.quantity||'—'}</div>
-            ${ing.benefit ? `<div style="background:var(--green-pale);border-left:3px solid var(--green-mid);padding:7px 10px;border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12.5px;color:var(--green-deep);line-height:1.5;"><strong>Why this herb:</strong> ${ing.benefit}</div>` : ''}
-            <div style="font-size:12.5px;color:var(--text-muted);">${ing.notes||''}</div>
-          </div>
-        </div>`;
-    }).join('');
-
-    const prepSteps = (sol.preparation||[]).map((s,i) => `
+    const prepSteps=(sol.preparation||[]).map((s,i)=>`
       <li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');
 
-    const stopItems = (sol.stopConditions||[]).map(s =>
-      `<li style="padding:3px 0;">• ${s}</li>`).join('');
+    const stopItems=(sol.stopConditions||[]).map(s=>`<li style="padding:3px 0;">• ${s}</li>`).join('');
+    const dos=sol.dosage||{};
+    const hvc=sol.herbVsConventional||{};
 
-    const dos = sol.dosage || {};
-    const hvc = sol.herbVsConventional || {};
-
-    // Administration method banner
-    const m = (dos.administrationMethod||'DRINK').toLowerCase();
-    let admCls, admIcon, admLabel, admInstruction;
-    if(m.includes('apply')||m.includes('skin')||m.includes('external')||m.includes('topical')) {
-      admCls='admin-apply'; admIcon='🖐️';
-      admLabel='APPLY TO SKIN — Do NOT Drink';
-      admInstruction='Rub or massage this remedy directly onto the affected area of the body. For EXTERNAL USE ONLY — do not swallow or drink it.';
-    } else if(m.includes('swallow')) {
-      admCls='admin-swallow'; admIcon='💊';
-      admLabel='SWALLOW — Take By Mouth';
-      admInstruction='Take this remedy by mouth and swallow whole. Do not chew unless instructed above.';
-    } else if(m.includes('chew')) {
-      admCls='admin-swallow'; admIcon='🌰';
-      admLabel='CHEW — Chew In Mouth';
-      admInstruction='Chew this remedy in your mouth. Swallow or spit as instructed by the preparation steps.';
-    } else if(m.includes('inhale')||m.includes('steam')) {
-      admCls='admin-inhale'; admIcon='💨';
-      admLabel='INHALE/STEAM — Breathe In Only';
-      admInstruction='Do NOT drink this remedy. Breathe in the steam or vapour from the prepared mixture as directed.';
-    } else {
-      admCls='admin-drink'; admIcon='🥤';
-      admLabel='DRINK — Take By Mouth';
-      admInstruction='Drink this remedy orally like a herbal tea or juice. Take it as directed in the dosage schedule below.';
-    }
-
-    panel.innerHTML = `
+    panel.innerHTML=`
       <div class="sol-meta">
         <span class="sol-tag herb">🌿 ${sol.approach||''}</span>
         <span class="sol-tag duration">⏱ ${sol.duration||''}</span>
         <span class="sol-tag difficulty">📊 ${sol.difficulty||''}</span>
       </div>
-
-      <div class="sec-title">🧪 Ingredients & Herbs</div>
-      <div class="herb-cards-grid">${ingredRows}</div>
-
+      <div class="sec-title">🧪 Ingredients</div>
+      <table class="ingr-table">
+        <thead><tr><th>Herb</th><th>Amount</th><th>Notes / Where to Find</th></tr></thead>
+        <tbody>${ingredRows}</tbody>
+      </table>
       <div class="sec-title">👩‍🍳 Preparation Steps</div>
-      <ul class="steps-list">${prepSteps || '<li><span class="step-num">!</span><span>No preparation steps provided — please try again.</span></li>'}</ul>
-
+      <ul class="steps-list">${prepSteps}</ul>
       <div class="dosage-box">
-        <h4>💊 Dosage & Schedule</h4>
-        <div class="admin-method ${admCls}">
-          <div style="width:100%;">
-            <div style="font-size:16px;font-weight:800;margin-bottom:4px;">${admIcon} HOW TO USE: ${admLabel}</div>
-            <div style="font-size:13px;opacity:0.9;line-height:1.5;">${admInstruction}</div>
-          </div>
-        </div>
+        <h4>💊 Dosage &amp; Schedule</h4>
+        ${(() => {
+          const m = (dos.administrationMethod||'NOT SPECIFIED').toLowerCase();
+          let cls, icon, label, instruction;
+          if(m.includes('apply')||m.includes('rub')||m.includes('skin')||m.includes('topical')||m.includes('external')) {
+            cls='admin-apply'; icon='🖐️';
+            label='APPLY TO SKIN — Do NOT Drink';
+            instruction='Rub or massage this remedy directly onto the affected area of the body. This is for external use only — do not swallow or drink it.';
+          } else if(m.includes('swallow')) {
+            cls='admin-swallow'; icon='💊';
+            label='SWALLOW — Take By Mouth';
+            instruction='Take this remedy by mouth and swallow it whole. Do not crush or chew unless instructed.';
+          } else if(m.includes('chew')) {
+            cls='admin-swallow'; icon='🌰';
+            label='CHEW — Chew In Mouth';
+            instruction='Chew this remedy in your mouth. You may swallow or spit depending on the herb instructions above.';
+          } else if(m.includes('inhale')||m.includes('steam')) {
+            cls='admin-inhale'; icon='💨';
+            label='INHALE/STEAM — Breathe In';
+            instruction='Do not drink this remedy. Breathe in the steam or vapour from the prepared mixture as directed.';
+          } else {
+            cls='admin-drink'; icon='🥤';
+            label='DRINK — Take By Mouth';
+            instruction='Drink this remedy like a tea or juice. Take it orally as directed in the dosage schedule below.';
+          }
+          return `<div class="admin-method ${cls}">
+            <div style="width:100%;">
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px;">${icon} HOW TO USE THIS REMEDY: ${label}</div>
+              <div style="font-size:13px;font-weight:400;opacity:0.9;line-height:1.5;">${instruction}</div>
+            </div>
+          </div>`;
+        })()}
         <div class="dosage-grid">
           <div class="dosage-item"><label>Amount per dose</label><span>${dos.amount||'—'}</span></div>
           <div class="dosage-item"><label>Frequency</label><span>${dos.frequency||'—'}</span></div>
           <div class="dosage-item"><label>Best time</label><span>${dos.timing||'—'}</span></div>
           <div class="dosage-item"><label>Course duration</label><span>${dos.duration||'—'}</span></div>
-          ${dos.childDose ? `<div class="dosage-item"><label>Child dose (&lt;12yrs)</label><span>${dos.childDose}</span></div>` : ''}
-          ${dos.pregnancySafe ? `<div class="dosage-item"><label>Pregnancy safe?</label><span>${dos.pregnancySafe}</span></div>` : ''}
+          ${dos.childDose?`<div class="dosage-item"><label>Child dose (&lt;12)</label><span>${dos.childDose}</span></div>`:''}
+          ${dos.pregnancySafe?`<div class="dosage-item"><label>Pregnancy safe?</label><span>${dos.pregnancySafe}</span></div>`:''}
         </div>
       </div>
-
       <div class="sec-title">⚖️ Herbs vs. Conventional Medicine</div>
       <div class="compare-row">
         <div class="compare-box">
@@ -955,16 +851,36 @@ function renderSolutionsForDiagnosis(diagIdx, data) {
           <div class="compare-body">${hvc.conventionalApproach||'—'}</div>
         </div>
       </div>
-      ${hvc.interactions ? `<div class="interaction-warn">⚠️ <strong>Drug Interaction Notice:</strong> ${hvc.interactions}</div>` : ''}
-
+      ${hvc.interactions?`<div class="interaction-warn">⚠️ <strong>Drug Interaction Notice:</strong> ${hvc.interactions}</div>`:''}
       <div class="stop-box">
         <strong>🛑 Stop Immediately If You Experience:</strong>
-        <ul style="margin-top:6px;list-style:none;">${stopItems || '<li>• Any severe allergic reaction such as rash, swelling or difficulty breathing</li><li>• Significant worsening of symptoms within 48 hours</li>'}</ul>
-        <p style="margin-top:8px;font-size:12.5px;">Stop the remedy and seek immediate medical attention if any of the above occur.</p>
+        <ul style="margin-top:6px;list-style:none;">${stopItems}</ul>
+        <p style="margin-top:8px;font-size:12.5px;">Discontinue the remedy and seek immediate medical attention if any of the above occur.</p>
       </div>`;
-
     container.appendChild(panel);
   });
+
+  // Hospital triggers
+  const ht=document.getElementById('hospital-triggers');
+  ht.innerHTML=`<ul style="list-style:none;">${(data.hospitalTriggers||[]).map(t=>`
+    <li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="color:var(--danger);font-size:18px;line-height:1;flex-shrink:0;">🚨</span><span>${t}</span>
+    </li>`).join('')}</ul>`;
+
+  // Emergency contacts
+  const ec=data.emergencyContacts||{};
+  document.getElementById('emergency-contacts').innerHTML=`
+    <div style="background:var(--green-pale);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">🇬🇭 Ghana Emergency</div>
+      <div style="font-size:13px;color:var(--text-mid);">${ec.ghana||'Ghana National Ambulance: 0800-111-222'}</div>
+    </div>
+    <div style="background:var(--earth-light);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">🇳🇬 Nigeria Emergency</div>
+      <div style="font-size:13px;color:var(--text-mid);">${ec.nigeria||'Nigeria Emergency: 112'}</div>
+    </div>`;
+
+  // Update supplement CTA to point at the most relevant product search for this patient's top diagnosis
+  updateSupplementCTA(data);
 }
 
 // ===== SMART SUPPLEMENT MATCHING =====
@@ -1033,29 +949,6 @@ function updateSupplementCTA(data) {
   if (ctaButtonText) {
     ctaButtonText.textContent = `See ${keyword.charAt(0).toUpperCase()+keyword.slice(1)} Products`;
   }
-}
-
-// ===== HERB IMAGE FETCHING from Wikipedia (free, no API key) =====
-async function fetchHerbImage(imgId, wikiUrl, herbName) {
-  try {
-    const resp = await fetch(wikiUrl);
-    if(!resp.ok) return;
-    const data = await resp.json();
-    const pages = data?.query?.pages;
-    if(!pages) return;
-    const page = Object.values(pages)[0];
-    const thumbUrl = page?.thumbnail?.source;
-    if(!thumbUrl) return;
-    const imgEl = document.getElementById(imgId);
-    const placeholder = document.getElementById(imgId + '-placeholder');
-    if(!imgEl) return;
-    imgEl.onload = () => {
-      imgEl.style.display = 'block';
-      if(placeholder) placeholder.style.display = 'none';
-    };
-    imgEl.onerror = () => {};
-    imgEl.src = thumbUrl;
-  } catch(e) {}
 }
 
 // ===== CONSULTATION HISTORY (saved locally on this device only) =====
